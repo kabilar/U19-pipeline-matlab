@@ -1,4 +1,4 @@
-function [header,parsedInfo] = parse_tif_header(tifFn,skipBehavSync)
+function [header,parsedInfo] = parse_tif_header_2photon(tifFn,skipBehavSync)
 
 % [header,parsedInfo] = parse_tif_header(tifFn,skipBehavSync)
 % parses tif headers saved by scan image in multi-ROI mode
