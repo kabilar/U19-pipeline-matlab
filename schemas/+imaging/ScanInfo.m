@@ -11,7 +11,6 @@ scan_depths               : blob          # depth values in this scan
 frame_rate                : float         # imaging frame rate
 inter_fov_lag_sec         : float         # time lag in secs between fovs
 frame_ts_sec              : longblob      # frame timestamps in secs 1xnFrames
-power_percent             : float         # percentage of power used in this scan
 channels                  : blob          # is this the channer number or total number of channels
 cfg_filename              : varchar(255)  # cfg file path
 usr_filename              : varchar(255)  # usr file path
@@ -27,6 +26,11 @@ nfovs                     : int           # number of field of view
 nframes                   : int           # number of frames in the scan
 nframes_good              : int           # number of frames in the scan before acceptable sample bleaching threshold is crossed
 last_good_file            : int           # number of the file containing the last good frame because of bleaching
+motion_correction_enabled=0 : tinyint     # 
+motion_correction_mode='N/A': varchar(64) # 
+stacks_enabled=0            : tinyint     # 
+stack_actuator='N/A'        : varchar(64) # 
+stack_definition='N/A'      : varchar(64) # 
 %}
 
 
@@ -129,7 +133,7 @@ classdef ScanInfo < dj.Imported
                 
                 % Just insertion of fov and fov fiels for 2 and 3 photon
             elseif is2Photon
-                self.insert_fov_photonmicro(key, scan_dir_db)
+                self.insert_fov_photonmicro(key, recInfo, scan_dir_db)
                 self.insert_fovfile_photonmicro(key, fl, imheader)
             else
                 error('Not a valid acquisition for this pipeline, how did you get here ??')
@@ -299,7 +303,7 @@ classdef ScanInfo < dj.Imported
             key.frame_rate                = recInfo.frameRate;
             key.inter_fov_lag_sec         = recInfo.interROIlag_sec;
             key.frame_ts_sec              = recInfo.Timing.Frame_ts_sec;
-            key.power_percent             = recInfo.Scope.Power_percent;
+            %key.power_percent            = recInfo.Scope.Power_percent;
             key.channels                  = recInfo.Scope.Channels;
             key.cfg_filename              = recInfo.Scope.cfgFilename;
             key.usr_filename              = recInfo.Scope.usrFilename;
@@ -316,6 +320,22 @@ classdef ScanInfo < dj.Imported
             key.nframes                   = recInfo.nFrames;
             key.nframes_good              = recInfo.nframes_good;
             key.last_good_file            = recInfo.last_good_file;
+            
+            if isfield(recInfo.Scope, 'stacks_enabled')
+                key.stacks_enabled        = recInfo.Scope.stacks_enabled;
+            end
+            if isfield(recInfo.Scope, 'stackActuator')
+                key.stack_actuator        = recInfo.Scope.stackActuator;
+            end
+            if isfield(recInfo.Scope, 'stackDefinition')
+                key.stack_definition      = recInfo.Scope.stackDefinition;
+            end
+            if isfield(recInfo.Scope, 'motionCorrection_enabled')
+                key.motion_correction_enabled = recInfo.Scope.motionCorrection_enabled;
+            end
+            if isfield(recInfo.Scope, 'motionCorrection_enabled')
+                key.motion_correction_mode = recInfo.Scope.motionCorMode;
+            end  
             self.insert(key)
             
         end
@@ -537,6 +557,12 @@ classdef ScanInfo < dj.Imported
                     fov_key.fov_pixel_resolution_xy = recInfo.ROI(iROI).pixelResolutionXY;
                     fov_key.fov_discrete_plane_mode = recInfo.ROI(iROI).discretePlaneMode;%boolean(recInfo.ROI(iROI).discretePlaneMode);
                     
+                    if isfield(parsedInfo.ROI(iROI), 'Power_percent')
+                        fov_key.power_percent = parsedInfo.ROI(iROI).Power_percent;
+                    else
+                        fov_key.power_percent = recInfo.Scope.Power_percent;
+                    end
+                    
                     ct = ct+1;
                     insert(imaging.FieldOfView,fov_key)
                     
@@ -563,7 +589,7 @@ classdef ScanInfo < dj.Imported
         end
         
         %% Insert FOV table for 2 and 3photon
-        function insert_fov_photonmicro(self, key, scan_directory)
+        function insert_fov_photonmicro(self, key, recInfo, scan_directory)
             
             fovkey = key;
             fovkey.fov = 1;
@@ -574,6 +600,7 @@ classdef ScanInfo < dj.Imported
             fovkey.fov_rotation_degrees = 0;
             fovkey.fov_pixel_resolution_xy = 0;
             fovkey.fov_discrete_plane_mode = 0;
+            fovkey.power_percent = recInfo.Scope.Power_percent;
             
             insert(imaging.FieldOfView, fovkey)
             

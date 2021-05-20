@@ -103,19 +103,23 @@ parsedInfo.Scope.flytoTimePerScanfield = str2double(cell2mat(regexp(scopeStr,'(?
 parsedInfo.Scope.fovCornerPoints       = resolutionFactor .* str2num(cell2mat(regexp(scopeStr,'(?<=SI.hScan2D.fovCornerPoints = )\[.+?]','match')));
 parsedInfo.Scope.stacks_enabled        = cell2mat(regexp(scopeStr,'(?<=SI.hStackManager.enable = )\w+','match'));
 if isempty(parsedInfo.Scope.stacks_enabled)
-    parsedInfo.Scope.stacks_enabled = 'false';
+    parsedInfo.Scope.stacks_enabled = 0;
 end
 if strcmp(parsedInfo.Scope.stacks_enabled, 'true') 
+    parsedInfo.Scope.stacks_enabled    = 1;
     parsedInfo.Scope.stackActuator     = cell2mat(regexp(scopeStr,'(?<=SI.hStackManager.stackActuator = \'')\w+','match'));
     parsedInfo.Scope.stackDefinition   = cell2mat(regexp(scopeStr,'(?<=SI.hStackManager.stackDefinition = \'')\w+','match'));   
 end
 parsedInfo.Scope.motionCorrection_enabled      = cell2mat(regexp(scopeStr,'(?<=SI.hMotionManager.enable = )\w+','match'));
 if strcmp(parsedInfo.Scope.motionCorrection_enabled, 'true')
+     parsedInfo.Scope.motionCorrection_enabled = 1;
      if strcmp(cell2mat(regexp(scopeStr,'(?<=SI.hMotionManager.correctionEnableZ = )\w+','match')), 'true')
      parsedInfo.Scope.motionCorMode    = 'automated';
      else
       parsedInfo.Scope.motionCorMode   = 'manual';   
      end
+else
+     parsedInfo.Scope.motionCorrection_enabled = 0;
 end
 
 %% remote focus (i.e. fast) Zs and depths
