@@ -29,10 +29,10 @@ else
     parsedInfo.nDepths          = 0;
 end
 try
-    parsedInfo.Zs             = mesoscopeParams.zFactor .* eval(cell2mat(regexp(cell2mat(regexp(scopeStr,'SI.hFastZ.userZs =.\[(.\d+.)+\]','match')),'.\[(.\d+.)+\]','match')));
+    parsedInfo.Zs             = imaging.utils.mesoscopeParams.zFactor .* eval(cell2mat(regexp(cell2mat(regexp(scopeStr,'SI.hFastZ.userZs =.\[(.\d+.)+\]','match')),'.\[(.\d+.)+\]','match')));
 catch
     try
-        parsedInfo.Zs           = mesoscopeParams.zFactor .* eval(cell2mat(regexp(cell2mat(regexp(scopeStr,'SI.hFastZ.userZs = \d+','match')),'\d+','match')));
+        parsedInfo.Zs           = imaging.utils.mesoscopeParams.zFactor .* eval(cell2mat(regexp(cell2mat(regexp(scopeStr,'SI.hFastZ.userZs = \d+','match')),'\d+','match')));
     catch
         temp                    = regexp(scopeStr,'SI.hFastZ.userZs = \[.+\]\n','match');
         idx_zs = strfind(scopeStr,'SI.hFastZ.userZs')
@@ -80,9 +80,9 @@ end
 %% microscope info
 if contains(scopeStr,'objectiveResolution')
     try
-    resolutionFactor                   = mesoscopeParams.xySizeFactor * str2double(cell2mat(regexp(cell2mat(regexp(scopeStr,'SI.objectiveResolution = [0-9]+.[0-9]+','match')),'\d+.\d+','match')));
+    resolutionFactor                   = imaging.utils.mesoscopeParams.xySizeFactor * str2double(cell2mat(regexp(cell2mat(regexp(scopeStr,'SI.objectiveResolution = [0-9]+.[0-9]+','match')),'\d+.\d+','match')));
     catch
-    resolutionFactor                   = mesoscopeParams.xySizeFactor * str2double(cell2mat(regexp(cell2mat(regexp(scopeStr,'SI.objectiveResolution = \d*','match')),'\d+', 'match')));    
+    resolutionFactor                   = imaging.utils.mesoscopeParams.xySizeFactor * str2double(cell2mat(regexp(cell2mat(regexp(scopeStr,'SI.objectiveResolution = \d*','match')),'\d+', 'match')));    
     end
 else
     resolutionFactor                   = 1;

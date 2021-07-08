@@ -65,14 +65,14 @@ for iROI = 1:numel(ROImarks)
   parsedInfo.ROI(iROI).name                = thisname;
   parsedInfo.ROI(iROI).Zs                  = str2double(cell2mat(regexp(thisROI,'(?<="zs": )(|-)\d+','match')));
 %   try 
-%     parsedInfo.ROI(iROI).Zs                = mesoscopeParams.zFactor .* str2double(cell2mat(regexp(cell2mat(regexp(thisROI,'"zs": (\d|.\d.+)','match')),'(\d|.\d.+)','match'))); 
+%     parsedInfo.ROI(iROI).Zs                = imaging.utils.mesoscopeParams.zFactor .* str2double(cell2mat(regexp(cell2mat(regexp(thisROI,'"zs": (\d|.\d.+)','match')),'(\d|.\d.+)','match'))); 
 %   catch
 %     temp                                   = regexp(thisROI,'"zs": \[.+\]\n','match');
 %     idx                                    = regexp(temp,',\n');
 %     temp                                   = temp{1}(1:idx{1}(1)-1);
 %     parsedInfo.ROI(iROI).Zs                = eval(cell2mat(regexp(temp,'\[.+\]','match')));
 %   end
-resolutionFactor                           = mesoscopeParams.xySizeFactor * str2double(cell2mat(regexp(scopeStr,'(?<=SI.objectiveResolution = )\d+.\d+','match')));
+resolutionFactor                           = imaging.utils.mesoscopeParams.xySizeFactor * str2double(cell2mat(regexp(scopeStr,'(?<=SI.objectiveResolution = )\d+.\d+','match')));
   parsedInfo.ROI(iROI).centerXY            = resolutionFactor .* str2num(cell2mat(regexp(thisROI,'(?<="centerXY": )\[.+?]','match')));
   parsedInfo.ROI(iROI).sizeXY              = resolutionFactor .* str2num(cell2mat(regexp(thisROI,'(?<="sizeXY": )\[.+?]','match')));
   parsedInfo.ROI(iROI).rotationDegrees     = str2double(cell2mat(regexp(thisROI,'(?<="rotationDegrees":) (\d+|\d+.\d.+)','match')));
@@ -134,10 +134,10 @@ else
 end
 try
   %MDia: there is no userZs field in newer SI version (also not sure what's the purpose of all these try catches)   
-  parsedInfo.Zs             = mesoscopeParams.zFactor .* eval(cell2mat(regexp(scopeStr,'(?<=SI.hFastZ.userZs = ).\[(.\d+.)+\]','match')));
+  parsedInfo.Zs             = imaging.utils.mesoscopeParams.zFactor .* eval(cell2mat(regexp(scopeStr,'(?<=SI.hFastZ.userZs = ).\[(.\d+.)+\]','match')));
 catch
   try
-    parsedInfo.Zs           = mesoscopeParams.zFactor .* eval(cell2mat(regexp(scopeStr,'(?<=SI.hFastZ.userZs = )\d+','match')));
+    parsedInfo.Zs           = imaging.utils.mesoscopeParams.zFactor .* eval(cell2mat(regexp(scopeStr,'(?<=SI.hFastZ.userZs = )\d+','match')));
   catch
    try
     parsedInfo.Zs           = str2num(cell2mat(regexp(scopeStr,'(?<=SI.hFastZ.userZs = )\[.+?]','match')));
