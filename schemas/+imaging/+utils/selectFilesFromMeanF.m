@@ -12,8 +12,7 @@ fprintf('estimating bleaching')
 
 %% load tifs and calculate mean fluorescence per frame
 scan_directory
-tifls      = dir([scan_directory '*tif']);
-
+tifls      = dir(fullfile(scan_directory, '*tif'));
 tifls      = cellfun(@(x)([scan_directory x]),{tifls(:).name},'uniformoutput',false);
 tifls
 nFiles     = numel(tifls);
