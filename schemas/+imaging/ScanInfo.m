@@ -280,7 +280,7 @@ classdef ScanInfo < dj.Imported
         %% find out last good frame based on bleaching
         function [lastGoodFile, cumulativeFrames] = get_last_good_frame(self, framesPerFile, scan_directory)
             
-            lastGoodFile        = selectFilesFromMeanF(scan_directory);            
+            lastGoodFile        = imaging.utils.selectFilesFromMeanF(scan_directory);            
             cumulativeFrames    = cumsum(framesPerFile);
             
         end
