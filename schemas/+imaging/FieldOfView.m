@@ -12,6 +12,7 @@ fov_size_xy             :  blob           # X-Y size of the FOV in microns. One 
 fov_rotation_degrees    :  float          # rotation of the FOV with respect to cardinal axes in degrees. One for each FOV in scan
 fov_pixel_resolution_xy :  blob           # number of pixels for rows and columns of the FOV. One for each FOV in scan
 fov_discrete_plane_mode :  tinyint        # true if FOV is only defined (acquired) at a single specifed depth in the volume. One for each FOV in scan should this be boolean?
+power_percent           :  float          # percentage of power used for this field of view
 %}
 
 classdef FieldOfView < dj.Imported

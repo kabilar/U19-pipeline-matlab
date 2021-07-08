@@ -11,7 +11,6 @@ scan_depths               : blob          # depth values in this scan
 frame_rate                : float         # imaging frame rate
 inter_fov_lag_sec         : float         # time lag in secs between fovs
 frame_ts_sec              : longblob      # frame timestamps in secs 1xnFrames
-power_percent             : float         # percentage of power used in this scan
 channels                  : blob          # is this the channer number or total number of channels
 cfg_filename              : varchar(255)  # cfg file path
 usr_filename              : varchar(255)  # usr file path
@@ -27,6 +26,11 @@ nfovs                     : int           # number of field of view
 nframes                   : int           # number of frames in the scan
 nframes_good              : int           # number of frames in the scan before acceptable sample bleaching threshold is crossed
 last_good_file            : int           # number of the file containing the last good frame because of bleaching
+motion_correction_enabled=0 : tinyint     # 
+motion_correction_mode='N/A': varchar(64) # 
+stacks_enabled=0            : tinyint     # 
+stack_actuator='N/A'        : varchar(64) # 
+stack_definition='N/A'      : varchar(64) # 
 %}
 
 
@@ -95,7 +99,11 @@ classdef ScanInfo < dj.Imported
             
             % get header with parfor loop
             fprintf('\tgetting headers...\n')
-            [imheader, parsedInfo] = self.get_parsed_info(fl, isMesoscope);
+            if isMesoscope
+                [imheader, parsedInfo] = self.get_parsed_info_mesoscope(fl);
+            else
+                [imheader, parsedInfo] = self.get_parsed_info_2photon(fl);
+            end
             
             %Get recInfo field
             [recInfo, framesPerFile] = self.get_recording_info(fl, imheader, parsedInfo);
@@ -126,7 +134,7 @@ classdef ScanInfo < dj.Imported
                 
                 % Just insertion of fov and fov fiels for 2 and 3 photon
             elseif is2Photon
-                self.insert_fov_photonmicro(key, scan_dirs_db)
+                self.insert_fov_photonmicro(key, recInfo, scan_dirs_db)
                 self.insert_fovfile_photonmicro(key, fl, imheader)
             else
                 error('Not a valid acquisition for this pipeline, how did you get here ??')
@@ -174,7 +182,7 @@ classdef ScanInfo < dj.Imported
             
         end
         
-        function [imheader, parsedInfo] = get_parsed_info(self, fl, isMesoscope)
+        function [imheader, parsedInfo] = get_parsed_info_2photon(self, fl)
             
             if isempty(gcp('nocreate'))
                 
@@ -186,21 +194,25 @@ classdef ScanInfo < dj.Imported
             end
             
             parfor iF = 1:numel(fl)
-                [imheader{iF},parsedInfo{iF}] = imaging.utils.parse_tif_header(fl{iF});
-                %If is mesoscope get also roi info from header
-                if isMesoscope
-                    parsedROI{iF} = imaging.utils.parse_roi_info_tif_header(imheader{iF});
-                end
+                [imheader{iF},parsedInfo{iF}] = imaging.utils.parse_tif_header_2photon(fl{iF});
             end
             
-            %Complete parsedInfo structure with parsedROI if this is mesoscope
-            if isMesoscope
-                for iF = 1:numel(fl)
-                    parsedInfo{iF} = u19_dj_utils.cat_struct(parsedInfo{iF}, parsedROI{iF});
-                end
+        end
+        
+        function [imheader, parsedInfo] = get_parsed_info_mesoscope(self, fl)
+            
+            if isempty(gcp('nocreate'))
+                
+                c = parcluster('local'); % build the 'local' cluster object
+                num_workers = min(c.NumWorkers, 16);
+
+                parpool('local', num_workers, 'IdleTimeout', 120);
+                
             end
             
-            
+            parfor iF = 1:numel(fl)
+                [imheader{iF},parsedInfo{iF}] = imaging.utils.parse_tif_header_mesoscope(fl{iF});
+            end
             
         end
         
@@ -292,7 +304,7 @@ classdef ScanInfo < dj.Imported
             key.frame_rate                = recInfo.frameRate;
             key.inter_fov_lag_sec         = recInfo.interROIlag_sec;
             key.frame_ts_sec              = recInfo.Timing.Frame_ts_sec;
-            key.power_percent             = recInfo.Scope.Power_percent;
+            %key.power_percent            = recInfo.Scope.Power_percent;
             key.channels                  = recInfo.Scope.Channels;
             key.cfg_filename              = recInfo.Scope.cfgFilename;
             key.usr_filename              = recInfo.Scope.usrFilename;
@@ -309,6 +321,22 @@ classdef ScanInfo < dj.Imported
             key.nframes                   = recInfo.nFrames;
             key.nframes_good              = recInfo.nframes_good;
             key.last_good_file            = recInfo.last_good_file;
+            
+            if isfield(recInfo.Scope, 'stacks_enabled')
+                key.stacks_enabled        = recInfo.Scope.stacks_enabled;
+            end
+            if isfield(recInfo.Scope, 'stackActuator')
+                key.stack_actuator        = recInfo.Scope.stackActuator;
+            end
+            if isfield(recInfo.Scope, 'stackDefinition')
+                key.stack_definition      = recInfo.Scope.stackDefinition;
+            end
+            if isfield(recInfo.Scope, 'motionCorrection_enabled')
+                key.motion_correction_enabled = recInfo.Scope.motionCorrection_enabled;
+            end
+            if isfield(recInfo.Scope, 'motionCorrection_enabled')
+                key.motion_correction_mode = recInfo.Scope.motionCorMode;
+            end  
             self.insert(key)
             
         end
@@ -337,26 +365,31 @@ classdef ScanInfo < dj.Imported
                     'SamplesPerPixel','PlanarConfiguration','Photometric'};
                 fprintf('\tparsing ROIs...\n')
                 
+                nROI        = recInfo.nROIs;%floor(nr/nc);
                 ROInr       = arrayfun(@(x)(x.pixelResolutionXY(2)),recInfo.ROI);
                 ROInc       = arrayfun(@(x)(x.pixelResolutionXY(1)),recInfo.ROI);
                 interROIlag = recInfo.interROIlag_sec;
                 Depths      = recInfo.nDepths;
+                whichDepths = unique([recInfo.ROI(:).Zs]);  % different ROI's for different depths!
                 
                 % make the folders in advance, before the parfor loop
-                for iROI = 1:nROI
-                    for iDepth = 1:Depths
+                
+                for iDepth = 1:Depths
+                    whichROI = find( cell2mat(arrayfun(@(x)x.Zs == whichDepths(iDepth), recInfo.ROI, 'UniformOutput', false)));
+                    for iROI = whichROI
                         mkdir(sprintf('ROI%02d_z%d',iROI,iDepth));
                     end
                 end
                 
                 tagNames = Tiff.getTagNames();
+                %%%%%%%
                 parfor iF = 1:numel(fl)
                     fprintf('%s\n',fl{iF})
                     
                     % read image and header
-                    %         if iF <= lastGoodFile % do not write frames beyond last good frame based on bleaching
+                    %if iF <= lastGoodFile % do not write frames beyond last good frame based on bleaching
                     readObj    = Tiff(fl{iF},'r');
-
+                    
                     current_header = struct();
                     for i = 1:length(tagNames)
                         try
@@ -365,31 +398,39 @@ classdef ScanInfo < dj.Imported
                             %warning([tagNames{i} 'does not exist on tif'])
                         end
                     end
-
-                    thisstack  = zeros(imheader{iF}(1).Height,imheader{iF}(1).Width,numel(imheader{iF}),'uint16');
+                    
+                    % hack: hard-code width for the case that you need to compress
+                    thisstack  = zeros(imheader{iF}(1).Height,512,numel(imheader{iF}),'uint16');
                     for iFrame = 1:numel(imheader{iF})
                         readObj.setDirectory(iFrame);
-                        thisstack(:,:,iFrame) = readObj.read();
+                        tempStack  = readObj.read();
+                        if size(tempStack, 2) ~= size(thisstack,2)
+                            pixel2Sum = imheader{iF}(1).Width/512;
+                            tempStack = squeeze(sum(reshape(tempStack, size(tempStack,1), pixel2Sum, 512),2));
+                        else
+                            pixel2Sum = 1;
+                        end
+                        thisstack(:,:,iFrame) = tempStack;
                     end
                     
                     % number of ROIs and blank pixels from beam travel
                     [nr,nc,~]  = size(thisstack);
-                    padsize    = (nr - sum(ROInr)) / (nROI - 1);
-                    rowct      = 1;
                     
-                    
-                    
-                    % create a separate tif for each ROI
-                    for iROI = 1:nROI
+                    for iDepth = 1:Depths
+                        iLag       = 0;
+                        rowct      = 1;
+                        whichROI = find( cell2mat(arrayfun(@(x)x.Zs == whichDepths(iDepth), recInfo.ROI, 'UniformOutput', false)));
                         
-                        thislag  = interROIlag*(iROI-1);
-                        
-                        for iDepth = 1:Depths
+                        % create a separate tif for each ROI
+                        for iROI = whichROI
                             
                             % extract correct frames
                             zIdx       = iDepth:Depths:size(thisstack,3);
-                            substack   = thisstack(rowct:rowct+ROInr(iROI)-1,1:ROInc(iROI),zIdx); % this square ROI, depths are interleaved
-                            thisfn     = sprintf('./ROI%02d_z%d/%sROI%02d_z%d_%s',iROI,iDepth,basename,iROI,iDepth,fl{iF}(stridx+1:end));
+                            substack   = thisstack(rowct:rowct+ROInr(iROI)-1,1:nc,zIdx); % this square ROI, depths are interleaved
+                            
+                            stridx   = regexp(fl{iF},'_[0-9]{5}.tif');
+                            thisfn     = sprintf('./ROI%02d_z%d/%sROI%02d_z%d_%s',iROI,iDepth,fl{iF}(1:stridx),iROI,iDepth,fl{iF}(stridx+1:end));
+                            %thisfn     = sprintf('./ROI%02d_z%d/%sROI%02d_z%d_%s',iROI,iDepth,basename,iROI,iDepth,fl{iF}(stridx+1:end));
                             writeObj   = Tiff(thisfn,'w');
                             thisheader = struct([]);
                             
@@ -400,15 +441,24 @@ classdef ScanInfo < dj.Imported
                                         thisheader(1).(fieldLs{iField}) = thisfn;
                                         
                                     case 'ImageLength'
-                                        thisheader(1).(fieldLs{iField}) = nc;
+                                        thisheader(1).(fieldLs{iField}) = ROInr(iROI);
+                                        
+                                    case 'ImageWidth'
+                                        thisheader(1).(fieldLs{iField}) = ROInc(iROI)/pixel2Sum;
                                         
                                     otherwise
                                         thisheader(1).(fieldLs{iField}) = readObj.getTag(fieldLs{iField});
                                 end
                             end
-                            thisheader(1).ImageDescription        = imheader{iF}(zIdx(1)).ImageDescription;
-                            %strrep(thisheader(1).Software,'hRoiManager.mroiEnable = 1', 'hRoiManager.mroiEnable = 0');
+                            % account for ROI lags in new time stamps
+                            imdescription = imheader{iF}(zIdx(1)).ImageDescription;
+                            old           = cell2mat(regexp(imdescription,'(?<=frameTimestamps_sec = )[0-9]+.[0-9]+','match'));
+                            thislag       = interROIlag*(iLag);
+                            new           = num2str(thislag + str2double(old));
+                            imdescription = replace(imdescription,old,new);
+                            thisheader(1).ImageDescription        = imdescription;
                             
+                            %Tiff header correction (for Datajoint element pipeline)
                             thisheader(1).Artist                  = current_header.Artist;
                             thisheader(1).Software                = current_header.Software;
                             thisheader(1).Software = strrep(thisheader(1).Software,'hRoiManager.mroiEnable = 1', 'hRoiManager.mroiEnable = 0');
@@ -418,6 +468,7 @@ classdef ScanInfo < dj.Imported
                                 thisheader(1).Software(fovum:fovum+idx_new-1) = [];
                             end
                             
+                            
                             % write first frame
                             writeObj.setTag(thisheader);
                             writeObj.setTag('SampleFormat',Tiff.SampleFormat.UInt);
@@ -425,16 +476,20 @@ classdef ScanInfo < dj.Imported
                             
                             % write frames
                             for iZ = 2:size(substack,3)
-                                %                 % do not write frames beyond last good frame based on bleaching
-                                %                 if iF == lastGoodFile && iZ > lastFrameInFile; continue; end
+                                % do not write frames beyond last good frame based on bleaching
+                                %if iF == lastGoodFile && iZ > lastFrameInFile; continue; end
                                 
                                 % account for ROI lags in new time stamps
                                 imdescription = imheader{iF}(zIdx(iZ)).ImageDescription;
-                                old           = cell2mat(regexp(cell2mat(regexp(imdescription,'frameTimestamps_sec = [0-9]+.[0-9]+','match')),'\d+.\d+','match'));
+                                old           = cell2mat(regexp(imdescription,'(?<=frameTimestamps_sec = )[0-9]+.[0-9]+','match'));
+                                thislag       = interROIlag*(iLag);
                                 new           = num2str(thislag + str2double(old));
                                 imdescription = replace(imdescription,old,new);
+                                
                                 % write image and hedaer
                                 thisheader(1).ImageDescription = imdescription;
+                                
+                                %Tiff header correction (for Datajoint element pipeline)
                                 thisheader(1).Artist           = current_header.Artist;
                                 thisheader(1).Software         = current_header.Software;
                                 thisheader(1).Software = strrep(thisheader(1).Software,'hRoiManager.mroiEnable = 1', 'hRoiManager.mroiEnable = 0');
@@ -443,23 +498,34 @@ classdef ScanInfo < dj.Imported
                                     idx_new = regexp(thisheader(1).Software(fovum:end), newline, 'once');
                                     thisheader(1).Software(fovum:fovum+idx_new-1) = [];
                                 end
+                                
+                                
                                 writeObj.writeDirectory();
                                 writeObj.setTag(thisheader);
                                 writeObj.setTag('SampleFormat',Tiff.SampleFormat.UInt);
-                                write(writeObj,substack(:,:,iZ));
+                                writeObj.write(substack(:,:,iZ));
                             end
                             
                             % close tif stack object
                             writeObj.close();
                             
-                            %clear substack
+                            iLag = iLag +1;
+                            
+                            % update first row index if there are more than one ROIs in
+                            % substack
+                            if length(whichROI) > 1
+                                padsize    = (nr - sum(ROInr(whichROI))) / (length(whichROI) - 1);
+                                rowct    = rowct+padsize+ROInr(iROI);
+                            end
+                            
                         end
                         
-                        % update first row index
-                        rowct    = rowct+padsize+ROInr(iROI);
                     end
                     
+                    %MDia: close all Tiff objects otherwise can't move files (at least on windows)
                     readObj.close();
+                    %end
+                    
                     % now move file
                     movefile(fl{iF},sprintf('originalStacks/%s',fl{iF}));
                 end
@@ -493,6 +559,12 @@ classdef ScanInfo < dj.Imported
                     fov_key.fov_pixel_resolution_xy = recInfo.ROI(iROI).pixelResolutionXY;
                     fov_key.fov_discrete_plane_mode = recInfo.ROI(iROI).discretePlaneMode;%boolean(recInfo.ROI(iROI).discretePlaneMode);
                     
+                    if isfield(parsedInfo.ROI(iROI), 'Power_percent')
+                        fov_key.power_percent = parsedInfo.ROI(iROI).Power_percent;
+                    else
+                        fov_key.power_percent = recInfo.Scope.Power_percent;
+                    end
+                    
                     ct = ct+1;
                     insert(imaging.FieldOfView,fov_key)
                     
@@ -519,7 +591,7 @@ classdef ScanInfo < dj.Imported
         end
         
         %% Insert FOV table for 2 and 3photon
-        function insert_fov_photonmicro(self, key, scan_dirs_db)
+        function insert_fov_photonmicro(self, key, recInfo, scan_dirs_db)
             
             fovkey = key;
             fovkey.fov = 1;
@@ -531,6 +603,7 @@ classdef ScanInfo < dj.Imported
             fovkey.fov_rotation_degrees = 0;
             fovkey.fov_pixel_resolution_xy = 0;
             fovkey.fov_discrete_plane_mode = 0;
+            fovkey.power_percent = recInfo.Scope.Power_percent;
             
             insert(imaging.FieldOfView, fovkey)
             
