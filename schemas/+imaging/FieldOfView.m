@@ -4,6 +4,7 @@
 fov                     :  tinyint        # number of the field of view in this scan
 ---
 fov_directory           :  varchar(255)   # the absolute directory created for this fov
+relative_fov_directory  :  varchar(255)   # the relative directory created for this fov
 fov_name=null           :  varchar(32)    # name of the field of view
 fov_depth               :  float          # depth of the field of view  should be a number or a vector?
 fov_center_xy           :  blob           # X-Y coordinate for the center of the FOV in microns. One for each FOV in scan

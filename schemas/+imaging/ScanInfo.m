@@ -55,6 +55,7 @@ classdef ScanInfo < dj.Imported
             generalTimer   = tic;
             curr_dir       = pwd;
             scan_dir_db    = fetch1(imaging.Scan & key,'scan_directory');
+            scan_dirs_db    = fetch(imaging.Scan & key,'scan_directory', 'relative_scan_directory');
             scan_directory = lab.utils.format_bucket_path(fetch1(imaging.Scan & key,'scan_directory'));
 
             %Check if directory exists in system
@@ -117,15 +118,15 @@ classdef ScanInfo < dj.Imported
             end
             
             %% Insert to ScanInfo
-            self.insert_scan_info(key, recInfo, scan_dir_db)
+            self.insert_scan_info(key, recInfo, scan_dirs_db.scan_directory)
             
             %% FOV ROI Processing for mesoscope
             if isMesoscope
-                self.insert_fov_mesoscope(fl, key, skipParsing, imheader, recInfo, basename, cumulativeFrames, scan_dir_db)
+                self.insert_fov_mesoscope(fl, key, skipParsing, imheader, recInfo, basename, cumulativeFrames, scan_dirs_db)
                 
                 % Just insertion of fov and fov fiels for 2 and 3 photon
             elseif is2Photon
-                self.insert_fov_photonmicro(key, scan_dir_db)
+                self.insert_fov_photonmicro(key, scan_dirs_db)
                 self.insert_fovfile_photonmicro(key, fl, imheader)
             else
                 error('Not a valid acquisition for this pipeline, how did you get here ??')
@@ -475,7 +476,8 @@ classdef ScanInfo < dj.Imported
                     % FieldOfView
                     fov_key               = key_data;
                     fov_key.fov           = ct;
-                    fov_key.fov_directory = sprintf('%s/ROI%02d_z%d/',scan_directory,iROI,iZ);
+                    fov_key.fov_directory = sprintf('%s/ROI%02d_z%d/',scan_dirs_db.scan_directory,iROI,iZ);
+                    fov_key.relative_fov_directory = sprintf('%s/ROI%02d_z%d/',scan_dirs_db.relative_scan_directory,iROI,iZ);
                     
                     if ~isempty(recInfo.ROI(iROI).name)
                         thisname        = sprintf('%s_z%d',recInfo.ROI(iROI).name,iZ);
@@ -517,11 +519,12 @@ classdef ScanInfo < dj.Imported
         end
         
         %% Insert FOV table for 2 and 3photon
-        function insert_fov_photonmicro(self, key, scan_directory)
+        function insert_fov_photonmicro(self, key, scan_dirs_db)
             
             fovkey = key;
             fovkey.fov = 1;
-            fovkey.fov_directory = scan_directory;
+            fovkey.fov_directory          = scan_dirs_db.scan_directory;
+            fovkey.relative_fov_directory = scan_dirs_db.relative_scan_directory;
             fovkey.fov_depth = 0;
             fovkey.fov_center_xy = 0;
             fovkey.fov_size_xy = 0;
