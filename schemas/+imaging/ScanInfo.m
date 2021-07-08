@@ -58,9 +58,8 @@ classdef ScanInfo < dj.Imported
             % runs a modified version of mesoscopeSetPreproc
             generalTimer   = tic;
             curr_dir       = pwd;
-            scan_dir_db    = fetch1(imaging.Scan & key,'scan_directory');
             scan_dirs_db    = fetch(imaging.Scan & key,'scan_directory', 'relative_scan_directory');
-            scan_directory = lab.utils.format_bucket_path(fetch1(imaging.Scan & key,'scan_directory'));
+            scan_directory = lab.utils.format_bucket_path(scan_dirs_db.scan_directory);
 
             %Check if directory exists in system
             lab.utils.assert_mounted_location(scan_directory)

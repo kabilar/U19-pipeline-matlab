@@ -1,9 +1,8 @@
-function [lastGoodFile,lastGoodFrame] = selectFilesFromMeanF(rec,FDecreaseThreshold)
+function [lastGoodFile,lastGoodFrame] = selectFilesFromMeanF(scan_directory,FDecreaseThreshold)
 
 % lastGoodFrame = selectFilesFromMeanF(rec,FDecreaseThreshold)
 % estimate bleaching by loading only first frame in each file, for speed
 
-if nargin < 1 || isempty(rec); rec = pwd; end
 if nargin < 2; FDecreaseThreshold  = 15;  end
 
 %% loop through tifs and calculate mean frame Fluorescence
@@ -13,8 +12,8 @@ fprintf('estimating bleaching')
 
 %% load tifs and calculate mean fluorescence per frame
 
-tifls      = dir([formatFilePath(rec) '*tif']);
-tifls      = cellfun(@(x)([formatFilePath(rec) x]),{tifls(:).name},'uniformoutput',false);
+tifls      = dir([scan_directory '*tif']);
+tifls      = cellfun(@(x)([scan_directory x]),{tifls(:).name},'uniformoutput',false);
 nFiles     = numel(tifls);
 meanF      = zeros(nFiles,1);
 ct         = 1;
