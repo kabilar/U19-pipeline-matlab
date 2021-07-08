@@ -11,9 +11,11 @@ tic
 fprintf('estimating bleaching')
 
 %% load tifs and calculate mean fluorescence per frame
-
+scan_directory
 tifls      = dir([scan_directory '*tif']);
+
 tifls      = cellfun(@(x)([scan_directory x]),{tifls(:).name},'uniformoutput',false);
+tifls
 nFiles     = numel(tifls);
 meanF      = zeros(nFiles,1);
 ct         = 1;
@@ -34,7 +36,10 @@ for iFile = 1:nFiles
 end
 
 %% estimate best fitting line for fluorescence decay
+x
+meanF
 x       = frameID;
+if length(meanF) > 1
 try
   betas = robustfit(x,meanF);
 catch
@@ -44,7 +49,12 @@ end
 
 yhat          = betas(1)+x.*betas(2);
 lastGoodFile  = find(yhat > yhat(1) - (FDecreaseThreshold/100)*yhat(1),1,'last');
-if isempty(lastGoodFile); lastGoodFile = nFiles; end
+    if isempty(lastGoodFile)
+        lastGoodFile = nFiles; 
+    end
+else
+    lastGoodFile =1;
+end
 cumFrames     = cumsum(frameID);
 lastGoodFrame = cumFrames(lastGoodFile);
 
