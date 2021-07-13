@@ -558,8 +558,8 @@ classdef ScanInfo < dj.Imported
                     fov_key.fov_pixel_resolution_xy = recInfo.ROI(iROI).pixelResolutionXY;
                     fov_key.fov_discrete_plane_mode = recInfo.ROI(iROI).discretePlaneMode;%boolean(recInfo.ROI(iROI).discretePlaneMode);
                     
-                    if isfield(parsedInfo.ROI(iROI), 'Power_percent')
-                        fov_key.power_percent = parsedInfo.ROI(iROI).Power_percent;
+                    if isfield(recInfo.ROI(iROI), 'Power_percent')
+                        fov_key.power_percent = recInfo.ROI(iROI).Power_percent;
                     else
                         fov_key.power_percent = recInfo.Scope.Power_percent;
                     end
