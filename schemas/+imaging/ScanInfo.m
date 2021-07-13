@@ -333,7 +333,7 @@ classdef ScanInfo < dj.Imported
             if isfield(recInfo.Scope, 'motionCorrection_enabled')
                 key.motion_correction_enabled = recInfo.Scope.motionCorrection_enabled;
             end
-            if isfield(recInfo.Scope, 'motionCorrection_enabled')
+            if isfield(recInfo.Scope, 'motionCorMode')
                 key.motion_correction_mode = recInfo.Scope.motionCorMode;
             end  
             self.insert(key)
