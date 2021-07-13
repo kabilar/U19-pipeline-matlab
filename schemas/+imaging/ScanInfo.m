@@ -341,7 +341,7 @@ classdef ScanInfo < dj.Imported
         end
         
         %% Fov and Fov file tables for mesoscope imaging
-        function insert_fov_mesoscope(self, fl, key_data, skipParsing, imheader, recInfo, basename, cumulativeFrames, scan_directory)
+        function insert_fov_mesoscope(self, fl, key_data, skipParsing, imheader, recInfo, basename, cumulativeFrames, scan_dirs_db)
             
             nROI                          = recInfo.nROIs;
             % scan image concatenates FOVs (ROIs) by adding rows, with padding between them.
