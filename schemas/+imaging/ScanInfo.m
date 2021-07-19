@@ -399,6 +399,7 @@ classdef ScanInfo < dj.Imported
                     end
                     
                     % hack: hard-code width for the case that you need to compress
+                    pixel2Sum = 1;
                     thisstack  = zeros(imheader{iF}(1).Height,512,numel(imheader{iF}),'uint16');
                     for iFrame = 1:numel(imheader{iF})
                         readObj.setDirectory(iFrame);
