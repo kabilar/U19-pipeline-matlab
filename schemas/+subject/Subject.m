@@ -13,6 +13,7 @@ head_plate_mark=null        : blob                          # little drawing on 
 -> subject.Line
 subject_description=''      : varchar(255)                  # description
 initial_weight=null         : float                         # initial weight of the animal before the training start.
+notification_enabled=1      : tinyint                       # Boolean to control wheter or not notifications for this subject are sent
 %}
 
 classdef Subject < dj.Manual
