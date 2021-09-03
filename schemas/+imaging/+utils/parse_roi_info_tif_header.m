@@ -11,7 +11,7 @@ function [parsedInfo] = parse_roi_info_tif_header(header)
 
 %% microscope info
 scopeStr                           = header(1).Software;
-resolutionFactor                   = mesoscopeParams.xySizeFactor * str2double(cell2mat(regexp(cell2mat(regexp(scopeStr,'SI.objectiveResolution = [0-9]+.[0-9]+','match')),'\d+.\d+','match')));
+resolutionFactor                   = imaging.utils.mesoscopeParams.xySizeFactor * str2double(cell2mat(regexp(cell2mat(regexp(scopeStr,'SI.objectiveResolution = [0-9]+.[0-9]+','match')),'\d+.\d+','match')));
 
 ROIinfo          = header(1).Artist;
 ROImarks         = strfind(ROIinfo,'"scanimage.mroi.Roi"');
@@ -29,7 +29,7 @@ for iROI = 1:numel(ROImarks)
     if isempty(thisname); thisname = ''; else; thisname = cell2mat(thisname); thisname = thisname(1:end-2); end
     parsedInfo.ROI(iROI).name                = thisname;
     try
-        parsedInfo.ROI(iROI).Zs                = mesoscopeParams.zFactor .* str2double(cell2mat(regexp(cell2mat(regexp(thisROI,'"zs": (\d|.\d.+)','match')),'(\d|.\d.+)','match')));
+        parsedInfo.ROI(iROI).Zs                = imaging.utils.mesoscopeParams.zFactor .* str2double(cell2mat(regexp(cell2mat(regexp(thisROI,'"zs": (\d|.\d.+)','match')),'(\d|.\d.+)','match')));
     catch
         temp                                   = regexp(thisROI,'"zs": \[.+\]\n','match');
         idx                                    = regexp(temp,',\n');

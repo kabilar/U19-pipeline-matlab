@@ -1,7 +1,8 @@
 %{
 -> acquisition.Session
 ---
-scan_directory      : varchar(255)
+scan_directory               : varchar(255)
+relative_scan_directory      : varchar(255)
 ->lab.AcquisitionType               # type of acquisition for this scan
 %}
 
@@ -33,14 +34,14 @@ classdef Scan < dj.Imported
             %If is mesoscope
             if any(contains(self.mesoscope_acq, acq_type))
                 %Get mesoscope scan_directory if exists
-                [status, scan_directory]   = self.get_mesoscope_scan(subj, session_date, base_dir);
+                [status, scan_directory, rel_scan_directory]   = self.get_mesoscope_scan(subj, session_date, base_dir);
               
             %If is 2photon or 3photon
             elseif any(contains(self.photon_micro_acq, acq_type))
                 %Get user nickname to locate scan_directory
                 user_nick = fetch1(subject.Subject * lab.User & key, 'user_nickname');
                 %Get imaging directory if exists
-                [status, scan_directory] = self.get_photonmicro_scan(subj, session_date, user_nick, base_dir);
+                [status, scan_directory, rel_scan_directory] = self.get_photonmicro_scan(subj, session_date, user_nick, base_dir);
               
             %If no real "acquisition" was made
             else
@@ -53,6 +54,7 @@ classdef Scan < dj.Imported
             if status
                 fprintf('directory with files %s found !!\n',scan_directory)
                 key.scan_directory = scan_directory;
+                key.relative_scan_directory = rel_scan_directory;
             else
                 fprintf('directory %s not found\n',scan_directory)
                 return
@@ -64,7 +66,7 @@ classdef Scan < dj.Imported
             self.insert(key)
         end
         
-        function [status, scan_directory] = get_mesoscope_scan(self, subj, session_date, mesoscope_base_dir)
+        function [status, scan_directory, rel_scan_directory] = get_mesoscope_scan(self, subj, session_date, mesoscope_base_dir)
             % get mesoscope scan directory
             %
             % Inputs
@@ -74,6 +76,8 @@ classdef Scan < dj.Imported
             % Outputs
             % status         = true if scan_directory found false otherwise
             % scan_directory = directory with tiff imaging files
+            
+            rel_scan_directory = '';
             
             %get main dir for acquisition files
             [bucket_path, local_path] = lab.utils.get_path_from_official_dir(mesoscope_base_dir);
@@ -87,28 +91,33 @@ classdef Scan < dj.Imported
             local_path = fullfile(local_path, subj, session_date);
             scan_directory = spec_fullfile('/',bucket_path, subj, session_date);
             
+            
             %Check if directory exists and is not empty
             if isempty(dir(local_path))
 
-            %complete local and bucket path for scan directory with upper case
-            subj = upper(subj);
-            local_path = fullfile(local_path, subj, session_date);            
-            scan_directory = spec_fullfile('/',bucket_path, subj, session_date);
+                %complete local and bucket path for scan directory with upper case
+                subj = upper(subj);
+                local_path = fullfile(local_path, subj, session_date);            
+                scan_directory = spec_fullfile('/',bucket_path, subj, session_date);
 
-                if isempty(dir(local_path))
-                    status = false;
-                else
-                    status = true;
-                end
+                    if isempty(dir(local_path))
+                        status = false;
+                    else
+                        status = true;
+                    end
             
             else
                 status = true;
+            end
+            
+            if status
+                rel_scan_directory = strrep(scan_directory, bucket_path, '/');
             end
            
         end
         
         
-        function [status, scan_directory] = get_photonmicro_scan(self, subj, session_date, user_nick, photon_micro_base_dir)
+        function [status, scan_directory, rel_scan_directory] = get_photonmicro_scan(self, subj, session_date, user_nick, photon_micro_base_dir)
             % get 2photon or 3photon scan directory
             %
             % Inputs
@@ -122,6 +131,7 @@ classdef Scan < dj.Imported
             
             status = true;
             scan_directory = '';
+            rel_scan_directory = '';
             
             %get main dir for acquisition files
             [bucket_path, local_path] = lab.utils.get_path_from_official_dir(photon_micro_base_dir);
@@ -183,6 +193,11 @@ classdef Scan < dj.Imported
             else
                 status = false;
             end
+            
+            if status
+                rel_scan_directory = strrep(scan_directory, bucket_path, '/');
+            end
+                
             
             
         end
