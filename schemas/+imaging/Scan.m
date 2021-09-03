@@ -58,6 +58,8 @@ classdef Scan < dj.Imported
                 return
             end
             
+            key.relative_scan_directory = scan_directory;
+            
             %Insert key in Scan table
             self.insert(key)
         end
