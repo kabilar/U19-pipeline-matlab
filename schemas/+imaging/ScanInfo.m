@@ -557,7 +557,7 @@ classdef ScanInfo < dj.Imported
                     fov_key.fov_size_xy             = recInfo.ROI(iROI).sizeXY;
                     fov_key.fov_rotation_degrees    = recInfo.ROI(iROI).rotationDegrees;
                     
-                    p.fov_pixel_resolution_xy = recInfo.ROI(iROI).pixelResolutionXY;
+                    fov_key.fov_pixel_resolution_xy = recInfo.ROI(iROI).pixelResolutionXY;
                     fov_key.fov_discrete_plane_mode = recInfo.ROI(iROI).discretePlaneMode;%boolean(recInfo.ROI(iROI).discretePlaneMode);
                     
                     if isfield(recInfo.ROI(iROI), 'Power_percent')
