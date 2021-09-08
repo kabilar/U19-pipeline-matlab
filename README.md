@@ -9,7 +9,7 @@ It specifies a number of tables and their relational structure to organizes all 
 
 in one coherent framework.
 
-# Connection to database (for MATLAB >= 2016b)
+# Connection to database
 1. Install datajoint for matlab 
       
       a) Utilize MATLAB built-in GUI i.e. Top Ribbon -> Add-Ons -> Get Add-Ons
@@ -23,6 +23,43 @@ in one coherent framework.
 4. ``` setenv('DB_PREFIX', 'u19_') ```
 5. ``` dj.conn('datajoint00.pni.princeton.edu') (Enter username and password) ```
 
+# Mounting data files on your system
+There are several data files (behavior, imaging & electrophysiology) that are referenced in the database
+To access thse files you should mount PNI file server volumes on your system.
+There are three main file servers across PNI where data is stored (braininit, Bezos & u19_dj)
+
+### On windows systems
+   - From Windows Explorer, select "Map Network Drive" and enter:
+           [\\\bucket.pni.princeton.edu\braininit\\]() (for braininit)
+           [\\\bucket.pni.princeton.edu\Bezos\\]()     (for Bezos)
+           [\\\bucket.pni.princeton.edu\u19_dj\\]()   (for u19_dj)
+  - Authenticate with your **NetID and PU password** (NOT your PNI password, which may be different). When prompted for your username, enter PRINCETON\netid (note that PRINCETON can be upper or lower case) where netid is your PU NetID.
+  
+### On OS X systems
+   1. Select "Go->Connect to Server..." from Finder and enter:
+           [smb://bucket.pni.princeton.edu/braininit/]()    (for braininit)
+           [smb://bucket.pni.princeton.edu/Bezos/]()    (for Bezos)
+           [smb://bucket.pni.princeton.edu/u19_dj/]()   (for u19_dj)
+  2. Authenticate with your **NetID and PU password** (NOT your PNI password, which may be different).
+
+### On Linux systems
+   Follow extra steps depicted in this link: https://npcdocs.princeton.edu/index.php/Mounting_the_PNI_file_server_on_your_desktop
+
+### Notable data 
+Here are some shortcuts to common used data accross PNI
+
+**Towers Task Sue Ann**
+- Imaging: [/Bezos-center/RigData/scope/bay3/sakoay/{protocol_name}/imaging/{subject_nickname}/]() 
+- Behavior: [/braininit/RigData/scope/bay3/sakoay/{protocol_name}/data/{subject_nickname}/]()
+
+**Widefield Lucas Pinto**
+- Imaging [/braininit/RigData/VRwidefield/widefield/{subject_nickname}/{session_date}/]()
+- Behavior [/braininit/RigData/VRwidefield/behavior/lucas/blocksReboot/data/{subject_nickname}/]()
+
+**Opto inactivacion experiments Lucas Pinto**
+- Imaging [/braininit/RigData/VRLaser/LaserGalvo1/{subject_nickname}/]()
+- Behavior [/braininit/RigData/VRLaser/behav/lucas/blocksReboot/data/{subject_nickname}/]()
+          
 # Go through Tutorial
 Follow the steps to go through the tutorial:
 1. Fork the repository to your own GitHub account
