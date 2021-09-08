@@ -23,7 +23,7 @@ in one coherent framework.
 4. ``` setenv('DB_PREFIX', 'u19_') ```
 5. ``` dj.conn('datajoint00.pni.princeton.edu') (Enter username and password) ```
 
-# Mounting data files on your system
+# Accesing data files on your system
 There are several data files (behavior, imaging & electrophysiology) that are referenced in the database
 To access thse files you should mount PNI file server volumes on your system.
 There are three main file servers across PNI where data is stored (braininit, Bezos & u19_dj)
@@ -69,7 +69,7 @@ Here are some shortcuts to common used data accross PNI
 4. Read file <br>
 ```[status, data] = lab.utils.read_behavior_file(key)```
 
-### Get path info from the session
+### Get path info for the session behavioral file
 1. Mount needed file server
 2. Connect to the Database
 3. Create a structure with subject_fullname and session_date from the session <br>
