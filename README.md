@@ -23,7 +23,7 @@ in one coherent framework.
 4. ``` setenv('DB_PREFIX', 'u19_') ```
 5. ``` dj.conn('datajoint00.pni.princeton.edu') (Enter username and password) ```
 
-# Accesing data files on your system
+# Accessing data files on your system
 There are several data files (behavior, imaging & electrophysiology) that are referenced in the database
 To access thse files you should mount PNI file server volumes on your system.
 There are three main file servers across PNI where data is stored (braininit, Bezos & u19_dj)
