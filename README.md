@@ -48,15 +48,15 @@ There are three main file servers across PNI where data is stored (braininit, Be
 ### Notable data 
 Here are some shortcuts to common used data accross PNI
 
-**Towers Task Sue Ann**
+**Sue Ann's Towers Task**
 - Imaging: [/Bezos-center/RigData/scope/bay3/sakoay/{protocol_name}/imaging/{subject_nickname}/]() 
 - Behavior: [/braininit/RigData/scope/bay3/sakoay/{protocol_name}/data/{subject_nickname}/]()
 
-**Widefield Lucas Pinto**
+**Lucas Pinto's Widefield **
 - Imaging [/braininit/RigData/VRwidefield/widefield/{subject_nickname}/{session_date}/]()
 - Behavior [/braininit/RigData/VRwidefield/behavior/lucas/blocksReboot/data/{subject_nickname}/]()
 
-**Opto inactivacion experiments Lucas Pinto**
+**Lucas Pinto's Opto inactivacion experiments **
 - Imaging [/braininit/RigData/VRLaser/LaserGalvo1/{subject_nickname}/]()
 - Behavior [/braininit/RigData/VRLaser/behav/lucas/blocksReboot/data/{subject_nickname}/]()
 
