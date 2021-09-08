@@ -59,7 +59,27 @@ Here are some shortcuts to common used data accross PNI
 **Opto inactivacion experiments Lucas Pinto**
 - Imaging [/braininit/RigData/VRLaser/LaserGalvo1/{subject_nickname}/]()
 - Behavior [/braininit/RigData/VRLaser/behav/lucas/blocksReboot/data/{subject_nickname}/]()
-          
+
+### Reading behavior files directly from Database
+1. Mount needed file server
+2. Connect to the Database
+3. Create a structure with subject_fullname and session_date from the session <br>
+```key.subject_fullname = 'koay_K65'``` <br>
+```key.session_Date = '2018-02-05'``` <br>
+4. Read file <br>
+```[status, data] = lab.utils.read_behavior_file(key)```
+
+### Get path info from the session
+1. Mount needed file server
+2. Connect to the Database
+3. Create a structure with subject_fullname and session_date from the session <br>
+```key.subject_fullname = 'koay_K65'``` <br>
+```key.session_Date = '2018-02-05'``` <br>
+4. Fetch filepath info:
+```data_dir = fetch(acquisition.SessionStarted & key, 'remote_path_behavior_file');``` <br>
+```[~, filepath] = lab.utils.get_path_from_official_dir(data_dir.remote_path_behavior_file);```
+
+
 # Go through Tutorial
 Follow the steps to go through the tutorial:
 1. Fork the repository to your own GitHub account
