@@ -14,6 +14,7 @@ head_plate_mark=null        : blob                          # little drawing on 
 subject_description=''      : varchar(255)                  # description
 initial_weight=null         : float                         # initial weight of the animal before the training start.
 notification_enabled=1      : tinyint                       # Boolean to control wheter or not notifications for this subject are sent
+need_reweight=0             : tinyint                       # Boolean flag for weighting GUI to notify technician to reweight subject if too thin and extra water
 %}
 
 classdef Subject < dj.Manual

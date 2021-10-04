@@ -36,7 +36,7 @@ classdef SegParameterSetParameter < dj.Part
                 'cnmf' , 'cnmf_tau' , 4;
                 'cnmf' , 'cnmf_p' , 2;
                 'cnmf' , 'cnmf_num_iter' , 2;
-                'cnmf' , 'cnmf_files_per_chunk' , 16;
+                'cnmf' , 'cnmf_files_per_chunk' , 64;
                 'cnmf' , 'cnmf_proto_num_chunks' , 1;
                 'cnmf' , 'cnmf_zero_is_minimum' , false;
                 'cnmf' , 'cnmf_default_timescale' , 10;
