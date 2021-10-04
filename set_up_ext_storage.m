@@ -3,7 +3,7 @@ function set_up_ext_storage()
 
 %Get ext_storage_path based on OS
 if ispc
-    ext_storage_path = '\\\\bucket.pni.princeton.edu\\u19_dj\\external_dj_blobs\\';
+    ext_storage_path = '\\bucket.pni.princeton.edu\u19_dj\external_dj_blobs\';
 elseif u19_dj_utils.is_this_spock
 
     ext_storage_path = '/mnt/bucket/u19_dj/external_dj_blobs/';
