@@ -25,12 +25,10 @@ in one coherent framework.
 
 # Go through Tutorial
 Follow the steps to go through the tutorial:
-1. Fork the repository to your own GitHub account
-2. Clone from your own GitHub repository. 
-3. Get into the directory of the current tutorial `tutorials/202001/`
-4. Run `startup.m`
-5. Put in the username and password when they prompt
-6. Run live scripts session01 and session02
+1. Get into the directory of the current tutorial `tutorials/202001/`
+2. Run `startup.m`
+3. Put in the username and password when they prompt
+4. Run live scripts session01 and session02
 
 # Accessing data files on your system
 There are several data files (behavior, imaging & electrophysiology) that are referenced in the database
