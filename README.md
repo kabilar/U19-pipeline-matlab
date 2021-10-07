@@ -25,7 +25,7 @@ in one coherent framework.
 
 # Go through Tutorial
 Follow the steps to go through the tutorial:
-1. Get into the directory of the current tutorial `tutorials/202001/`
+1. Get into the directory of the current tutorial `tutorials/202103/`
 2. Run `startup.m`
 3. Put in the username and password when they prompt
 4. Run live scripts session01 and session02
