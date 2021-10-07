@@ -30,11 +30,11 @@ Follow the steps to go through the tutorial:
       - Put in the username and password when they prompt1. 
        
 3. Choose your tutorial
-      - Querying data (**Strongly recommended**) 
-      - go through `session01_queries_fetches.mlx`
+      a. Querying data (**Strongly recommended**) 
+      -- go through `session01_queries_fetches.mlx`
 
-      - Building analysis pipeline (Recommended only if you are going to create new databases or tables for analysis)
-      - go through `session02_build_pipeline.mlx`
+      b. Building analysis pipeline (Recommended only if you are going to create new databases or tables for analysis)
+      --go through `session02_build_pipeline.mlx`
 
 # Accessing data files on your system
 There are several data files (behavior, imaging & electrophysiology) that are referenced in the database
