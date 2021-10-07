@@ -26,9 +26,9 @@ in one coherent framework.
 # Go through Tutorial
 Follow the steps to go through the tutorial:
 1. Get into the directory of the current tutorial `tutorials/202103/`
-2. Run `startup.m`
-3. Put in the username and password when they prompt
-4. Run live scripts session01 and session02
+2. (Skip if already connected to the DB): run `startup.m`
+      - Put in the username and password when they prompt
+3. Run live scripts session01
 
 # Accessing data files on your system
 There are several data files (behavior, imaging & electrophysiology) that are referenced in the database
