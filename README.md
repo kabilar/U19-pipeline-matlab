@@ -27,8 +27,14 @@ in one coherent framework.
 Follow the steps to go through the tutorial:
 1. Get into the directory of the current tutorial `tutorials/202103/`
 2. (Skip if already connected to the DB): run `startup.m`
-      - Put in the username and password when they prompt
-3. Run live scripts session01
+      - Put in the username and password when they prompt1. 
+       
+3. Choose your tutorial
+      - Querying data (**Strongly recommended**) 
+      - go through `session01_queries_fetches.mlx`
+
+      - Building analysis pipeline (Recommended only if you are going to create new databases or tables for analysis)
+      - go through `session02_build_pipeline.mlx`
 
 # Accessing data files on your system
 There are several data files (behavior, imaging & electrophysiology) that are referenced in the database
