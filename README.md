@@ -23,6 +23,15 @@ in one coherent framework.
 4. ``` setenv('DB_PREFIX', 'u19_') ```
 5. ``` dj.conn('datajoint00.pni.princeton.edu') (Enter username and password) ```
 
+# Go through Tutorial
+Follow the steps to go through the tutorial:
+1. Fork the repository to your own GitHub account
+2. Clone from your own GitHub repository. 
+3. Get into the directory of the current tutorial `tutorials/202001/`
+4. Run `startup.m`
+5. Put in the username and password when they prompt
+6. Run live scripts session01 and session02
+
 # Accessing data files on your system
 There are several data files (behavior, imaging & electrophysiology) that are referenced in the database
 To access thse files you should mount PNI file server volumes on your system.
@@ -79,15 +88,6 @@ Here are some shortcuts to common used data accross PNI
 ```data_dir = fetch(acquisition.SessionStarted & key, 'remote_path_behavior_file');``` <br>
 ```[~, filepath] = lab.utils.get_path_from_official_dir(data_dir.remote_path_behavior_file);```
 
-
-# Go through Tutorial
-Follow the steps to go through the tutorial:
-1. Fork the repository to your own GitHub account
-2. Clone from your own GitHub repository. 
-3. Get into the directory of the current tutorial `tutorials/202001/`
-4. Run `startup.m`
-5. Put in the username and password when they prompt
-6. Run live scripts session01 and session02
 
 # Backend
 The backend is a SQL server [MariaDB].
