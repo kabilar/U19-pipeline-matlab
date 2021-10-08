@@ -5,7 +5,7 @@ function fit_results = psychFit(deltaBins, numR, numL, choices)
     numTrials           = zeros(numel(deltaBins),1);
     trialDelta          = zeros(numel(deltaBins),1);
     nCues_RminusL       = numR - numL;
-    trialBin            = closest_value((deltaBins, nCues_RminusL);
+    trialBin            = closest_value(deltaBins, nCues_RminusL);
     for iTrial = 1:numel(choices)
         numTrials(trialBin(iTrial))   = numTrials(trialBin(iTrial)) + 1;
         if choices(iTrial) == 2
