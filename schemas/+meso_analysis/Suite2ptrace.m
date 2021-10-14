@@ -7,8 +7,12 @@ f_roi_raw                   : longblob
 f_surround_raw              : longblob
 spiking                     : longblob
 is_cell                     : blob
-f0_roi_raw                  : float      # baseline for each cell, calculated on f_roi_raw
+f0_roi_raw                  : float     # baseline for each cell, calculated on f_roi_raw
 dff_roi_uncorrected         : longblob  # delta f/f, baseline corrected but no neuropil correction, 1 x nFrames (calculated from f_roi_raw and f0_roi_raw)
+skew                        : float     # skewness of neu corrected trace
+std                         : float     # std of neu corrected trace
+compact                     : float     # 1 means disk
+med                         : blob      # pos on FOV
 %}
 
 classdef Suite2ptrace < dj.Imported
@@ -34,6 +38,10 @@ classdef Suite2ptrace < dj.Imported
                thisresult.is_cell                    = iscell(iROI,:);
                thisresult.f0_roi_raw                 = f0;
                thisresult.dff_roi_uncorrected        = dff;
+               thisresult.skew                       = stat{iROI}.skew;
+               thisresult.std                        = stat{iROI}.std;
+               thisresult.compact                    = stat{iROI}.compact; 
+               thisresult.med                        = stat{iROI}.med; 
                
                 self.insert(thisresult)
                
