@@ -5,7 +5,7 @@ function fit_results = psychFit(deltaBins, numR, numL, choices)
     numTrials           = zeros(numel(deltaBins),1);
     trialDelta          = zeros(numel(deltaBins),1);
     nCues_RminusL       = numR - numL;
-    trialBin            = closest_value(deltaBins, nCues_RminusL);
+    trialBin            = binarySearch(deltaBins, nCues_RminusL, 0, 2);
     for iTrial = 1:numel(choices)
         numTrials(trialBin(iTrial))   = numTrials(trialBin(iTrial)) + 1;
         if choices(iTrial) == 2
@@ -34,13 +34,13 @@ function fit_results = psychFit(deltaBins, numR, numL, choices)
     delta               = linspace(deltaBins(1)-2, deltaBins(end)+2, 50);
 
     %% Draw a line with error bars for data
-    errorX              = repmat(trialDelta(sel)', 3, 1);
-    errorY              = pci(sel,:)';
+    errorX              = repmat(trialDelta(sel), 1, 2);
+    errorY              = pci(sel,1:2);
 
     fit_results.delta_data      = trialDelta(sel)';
     fit_results.pright_data     = 100*phat(sel)';
-    fit_results.delta_error     = errorX(:)';
-    fit_results.pright_error    = 100*errorY(:)';
+    fit_results.delta_error     = errorX';
+    fit_results.pright_error    = 100*errorY';
 
     if ~isempty(psychometric)
         fit_results.delta_fit = delta';
