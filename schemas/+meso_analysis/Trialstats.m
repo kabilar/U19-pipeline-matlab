@@ -146,12 +146,24 @@ end
 function lg = getFlattenedLog(key)
  
 %% load data from dj and create flattened format
+% behavior
 blockData  = fetch(behavior.TowersBlock & key,'level');
-nBlocks    = numel(blockData);
- 
+
+%imaging 
+% field of view key
+imagingSessKey          = fetch(imaging.FieldOfView & key & 'fov=2');
+syncInfo                = fetch(imaging.SyncImagingBehavior & imagingSessKey,                                                    ...
+                               'sync_im_frame','sync_im_frame_global','sync_behav_block_by_im_frame',                            ...
+                               'sync_behav_trial_by_im_frame','sync_behav_iter_by_im_frame','sync_im_frame_span_by_behav_block', ...
+                               'sync_im_frame_span_by_behav_trial','sync_im_frame_span_by_behav_iter'                            ...
+                              );
+
+
+% flattened log only for behavioral blocks with imaging tiffs
+whichBlocks    = find(~cellfun(@isempty, syncInfo.sync_im_frame_span_by_behav_block)); %numel(blockData);
 lg         = initLog; % start empty matrices
  
-for iBlock = 1:nBlocks
+for iBlock = whichBlocks
   % some trial data (choice, trial type, excess travel)
   trialData  = fetch(behavior.TowersBlockTrial & key & sprintf('block = %d',iBlock),          ...
                      'trial_type','choice','excess_travel','trial_abs_start','trial_id',      ...
@@ -409,22 +421,9 @@ lg.true_mem_period_dur_sec = mem - maxrl;
 lg.info.frameDtVirmen = mode(diff(lg.time{1}));
  
 %% imaging sync
- 
-% field of view key
-imagingSessKey          = fetch(imaging.FieldOfView & key & 'fov=2');
- 
 % frame rate
 framerate               = fetch1(imaging.ScanInfo & key, 'frame_rate');
 lg.info.frameDtImaging  = 1/framerate;
- 
-% sync info
-syncInfo                = fetch(imaging.SyncImagingBehavior & imagingSessKey,                                                       ...
-                               'sync_im_frame','sync_im_frame_global','sync_behav_block_by_im_frame',                            ...
-                               'sync_behav_trial_by_im_frame','sync_behav_iter_by_im_frame','sync_im_frame_span_by_behav_block', ...
-                               'sync_im_frame_span_by_behav_trial','sync_im_frame_span_by_behav_iter'                            ...
-                              );
- 
-% imaging sync
 lg                      = extractFrameTimeByTrials_mesoscope(lg,syncInfo,imagingSessKey);
   
  
