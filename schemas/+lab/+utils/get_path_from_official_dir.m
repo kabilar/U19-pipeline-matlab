@@ -1,4 +1,4 @@
-function [bucket_path, local_path] =  get_path_from_official_dir(baseDir)
+function [bucket_path, local_path, rel_path] =  get_path_from_official_dir(baseDir)
 %Get entire bucket path location and accesible "local" path from a
 %reference to buckets in u19
 %
@@ -8,6 +8,7 @@ function [bucket_path, local_path] =  get_path_from_official_dir(baseDir)
 % Outputs
 % bucket_path = path in the bucket (as seen in spock and scotty)
 % local_path  = reference path when function is run from local computer
+% rel_path    = path from a relative perspective (system agnositc)
 %
 % Examples
 % basedir = 'Bezos/RigData/scope/bay3'
@@ -69,5 +70,7 @@ end
 if u19_dj_utils.is_this_spock()
     local_path = bucket_path;
 end
+
+rel_path = strrep(bucket_path,path_record.bucket_path{1},['/',path_record.global_path{1}]);
       
 end

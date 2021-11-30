@@ -192,7 +192,7 @@ classdef ScanInfo < dj.Imported
                 
             end
             
-            parfor iF = 1:numel(fl)
+            for iF = 1:numel(fl)
                 [imheader{iF},parsedInfo{iF}] = imaging.utils.parse_tif_header_2photon(fl{iF});
             end
             
@@ -543,7 +543,7 @@ classdef ScanInfo < dj.Imported
                     fov_key               = key_data;
                     fov_key.fov           = ct;
                     fov_key.fov_directory = sprintf('%s/ROI%02d_z%d/',scan_dirs_db.scan_directory,iROI,iZ);
-                    fov_key.relative_fov_directory = sprintf('%s/ROI%02d_z%d/',scan_dirs_db.relative_scan_directory,iROI,iZ);
+                    [~,~,fov_key.relative_fov_directory] = lab.utils.get_path_from_official_dir(fov_key.fov_directory);
                     
                     if ~isempty(recInfo.ROI(iROI).name)
                         thisname        = sprintf('%s_z%d',recInfo.ROI(iROI).name,iZ);
