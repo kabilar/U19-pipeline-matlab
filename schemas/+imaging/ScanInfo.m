@@ -608,8 +608,6 @@ classdef ScanInfo < dj.Imported
             fovkey.fov_discrete_plane_mode = 0;
             fovkey.power_percent = recInfo.Scope.Power_percent;
             
-            key.relative_fov_directory = fov_directory;
-            
             insert(imaging.FieldOfView, fovkey)
             
         end
