@@ -39,9 +39,9 @@ classdef Scan < dj.Imported
             %If is 2photon or 3photon
             elseif any(contains(self.photon_micro_acq, acq_type))
                 %Get user nickname to locate scan_directory
-                user_nick = fetch1(subject.Subject * lab.User & key, 'user_nickname');
+                user_ids = fetch(subject.Subject * lab.User & key, 'user_nickname', 'user_id');
                 %Get imaging directory if exists
-                [status, scan_directory, rel_scan_directory] = self.get_photonmicro_scan(subj, session_date, user_nick, base_dir);
+                [status, scan_directory, rel_scan_directory] = self.get_photonmicro_scan(subj, session_date, user_ids, base_dir);
               
             %If no real "acquisition" was made
             else
@@ -59,9 +59,7 @@ classdef Scan < dj.Imported
                 fprintf('directory %s not found\n',scan_directory)
                 return
             end
-            
-            key.relative_scan_directory = scan_directory;
-            
+                        
             %Insert key in Scan table
             self.insert(key)
         end
@@ -117,13 +115,13 @@ classdef Scan < dj.Imported
         end
         
         
-        function [status, scan_directory, rel_scan_directory] = get_photonmicro_scan(self, subj, session_date, user_nick, photon_micro_base_dir)
+        function [status, scan_directory, rel_scan_directory] = get_photonmicro_scan(self, subj, session_date, user_ids, photon_micro_base_dir)
             % get 2photon or 3photon scan directory
             %
             % Inputs
             % subj           = subject nickname
             % session_date   = date from the acquisition in format YYYYMMDD
-            % user_nick      = user nickname (parent folder for scan dir)
+            % user_ids       = user id & user nickname (parent folder for scan dir)
             %
             % Outputs
             % status         = true if scan_directory found false otherwise
@@ -134,70 +132,82 @@ classdef Scan < dj.Imported
             rel_scan_directory = '';
             
             %get main dir for acquisition files
-            [bucket_path, local_path] = lab.utils.get_path_from_official_dir(photon_micro_base_dir);
+            [~, local_path] = lab.utils.get_path_from_official_dir(photon_micro_base_dir);
             
             %If running locally, check if it is connected
             if ~u19_dj_utils.is_this_spock()
                 lab.utils.assert_mounted_location(local_path);
             end
             
-            %Parent folder starts with user nicknames
-            userDir        =  fullfile(local_path, user_nick);
-             
-            %Get all child directories from user
-            disp(['Get all paths from Directory: ' userDir])
-            dirInfo = genpath(userDir);
-            dirInfo = split(dirInfo,':');
-            
-            % For matlab 2016 change string to cell
-            if isstring(dirInfo)
-                dirInfo = cellstr(dirInfo);
-            end
-            
-            %Remove final entry (0x0 char)
-            dirInfo = dirInfo(1:end-1);
-            
-            %Search directories that "end" with subject nickname
-            indexSubjDir = cellfun(@(x) strcmpi(x(end-length(subj)+1:end),subj),...
-                dirInfo, 'UniformOutput',true);
-            
-            % If only one path "ends" with subject nickname
-            if sum(indexSubjDir) == 1
-                dirSubj = dirInfo{indexSubjDir};
-                dirSession = fullfile(dirSubj, session_date);
-                
-            % If no path "ends" with subject nickname    
-            elseif sum(indexSubjDir) == 0
-                status = false;
-                return
-            
-            % If more than one path "ends" with subject nickname 
-            else
-                dirInfo = dirInfo(indexSubjDir);
-                
-                %Check every path, first directory with files will make it stop
-                for j=1:length(dirInfo)
-                    dirSubj = dirInfo{j};
-                    dirSession = fullfile(dirSubj, session_date);
-                    
-                    if ~isempty(dir(dirSession))
-                        break
-                    end
+            %Check existence of user folder
+            user_ids = {user_ids.user_id, user_ids.user_nickname};
+            found_user_dir = 0;
+            for i=1:length(user_ids)
+                userDir        =  fullfile(local_path, user_ids{i});
+                if isfolder(userDir)
+                    found_user_dir = 1;
+                    break
                 end
             end
-            
-            %Check if "candidate" directory is empty
-            if ~isempty(dir(dirSession))
-                %Get scan directory from bucket
-                scan_directory = lab.utils.get_path_from_official_dir(dirSession);
+               
+            if found_user_dir
+                %Get all child directories from user
+                disp(['Get all paths from Directory: ' userDir])
+                dirInfo = genpath(userDir);
+                dirInfo = split(dirInfo,':');
+
+                % For matlab 2016 change string to cell
+                if isstring(dirInfo)
+                    dirInfo = cellstr(dirInfo);
+                end
+
+                %Remove final entry (0x0 char)
+                dirInfo = dirInfo(1:end-1);
+
+                %Search directories that "end" with subject nickname
+                indexSubjDir = cellfun(@(x) strcmpi(x(end-length(subj)+1:end),subj),...
+                    dirInfo, 'UniformOutput',true);
+
+                % If only one path "ends" with subject nickname
+                if sum(indexSubjDir) == 1
+                    dirSubj = dirInfo{indexSubjDir};
+                    dirSession = fullfile(dirSubj, session_date);
+
+                % If no path "ends" with subject nickname    
+                elseif sum(indexSubjDir) == 0
+                    status = false;
+                    return
+
+                % If more than one path "ends" with subject nickname 
+                else
+                    dirInfo = dirInfo(indexSubjDir);
+
+                    %Check every path, first directory with files will make it stop
+                    for j=1:length(dirInfo)
+                        dirSubj = dirInfo{j};
+                        dirSession = fullfile(dirSubj, session_date);
+
+                        if ~isempty(dir(dirSession))
+                            break
+                        end
+                    end
+                end
+
+                %Check if "candidate" directory is empty
+                if ~isempty(dir(dirSession))
+                    %Get scan directory from bucket
+                    scan_directory = lab.utils.get_path_from_official_dir(dirSession);
+                else
+                    status = false;
+                end
+
+                if status
+                    [~, ~, rel_scan_directory] = lab.utils.get_path_from_official_dir(scan_directory);
+                end
             else
                 status = false;
+                disp(['User directory not found on: ' local_path])
             end
-            
-            if status
-                rel_scan_directory = strrep(scan_directory, bucket_path, '/');
-            end
-                
             
             
         end
