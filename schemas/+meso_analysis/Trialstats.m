@@ -369,8 +369,8 @@ lg.is_right_trial  = lg.trialType == analysisParams.rightCode;
 lg.is_left_trial   = lg.trialType == analysisParams.leftCode;
 lg.is_correct      = lg.choice == lg.trialType;
 lg.is_error        = lg.choice ~= lg.trialType;
-lg.is_towers_task  = lg.currMaze == 11 | lg.currMaze == 10;
-lg.is_visguided_task    = lg.currMaze == 12 | lg.currMaze == 4;
+lg.is_towers_task  = lg.currMaze == 11; % | lg.currMaze == 10;
+lg.is_visguided_task    = lg.currMaze == 12; % | lg.currMaze == 4;
 lg.is_excess_travel     = lg.excess_travel > 0.1;
 lg.is_not_excess_travel = lg.excess_travel <= 0.1;
  
