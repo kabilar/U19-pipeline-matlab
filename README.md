@@ -65,11 +65,11 @@ Here are some shortcuts to common used data accross PNI
 - Imaging: [/Bezos-center/RigData/scope/bay3/sakoay/{protocol_name}/imaging/{subject_nickname}/]() 
 - Behavior: [/braininit/RigData/scope/bay3/sakoay/{protocol_name}/data/{subject_nickname}/]()
 
-**Lucas Pinto's Widefield **
+**Lucas Pinto's Widefield**
 - Imaging [/braininit/RigData/VRwidefield/widefield/{subject_nickname}/{session_date}/]()
 - Behavior [/braininit/RigData/VRwidefield/behavior/lucas/blocksReboot/data/{subject_nickname}/]()
 
-**Lucas Pinto's Opto inactivacion experiments **
+**Lucas Pinto's Opto inactivacion experiments**
 - Imaging [/braininit/RigData/VRLaser/LaserGalvo1/{subject_nickname}/]()
 - Behavior [/braininit/RigData/VRLaser/behav/lucas/blocksReboot/data/{subject_nickname}/]()
 
