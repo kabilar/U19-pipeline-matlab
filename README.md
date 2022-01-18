@@ -45,14 +45,14 @@ There are three main file servers across PNI where data is stored (braininit, Be
 - From Windows Explorer, select "Map Network Drive" and enter: <br>
     [\\\cup.pni.princeton.edu\braininit\\]() (for braininit) <br>
     [\\\cup.pni.princeton.edu\Bezos-center\\]()     (for Bezos) <br>
-    [\\\bucket.pni.princeton.edu\u19_dj\\]()   (for u19_dj) <br>
+    [\\\cup.pni.princeton.edu\u19_dj\\]()   (for u19_dj) <br>
 - Authenticate with your **NetID and PU password** (NOT your PNI password, which may be different). When prompted for your username, enter PRINCETON\netid (note that PRINCETON can be upper or lower case) where netid is your PU NetID.
   
 ### On OS X systems
 - Select "Go->Connect to Server..." from Finder and enter: <br>
     [smb://cup.pni.princeton.edu/braininit/]()    (for braininit) <br>
     [smb://cup.pni.princeton.edu/Bezos-center/]()    (for Bezos) <br>
-    [smb://bucket.pni.princeton.edu/u19_dj/]()   (for u19_dj) <br>
+    [smb://cup.pni.princeton.edu/u19_dj/]()   (for u19_dj) <br>
 - Authenticate with your **NetID and PU password** (NOT your PNI password, which may be different).
 
 ### On Linux systems
