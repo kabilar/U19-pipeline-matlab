@@ -563,6 +563,9 @@ classdef ScanInfo < dj.Imported
                     if isfield(recInfo.ROI(iROI), 'Power_percent')
                         fov_key.power_percent = recInfo.ROI(iROI).Power_percent;
                     else
+                        fov_key.power_percent = [];
+                    end
+                    if isempty(fov_key.power_percent)
                         fov_key.power_percent = recInfo.Scope.Power_percent;
                     end
                     
