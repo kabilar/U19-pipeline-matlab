@@ -10,4 +10,7 @@ else
      
 end
 
+s = dj.conn;
+s.close();
+
 end
