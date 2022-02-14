@@ -591,7 +591,11 @@ classdef ScanInfo < dj.Imported
                     file_entries.file_frame_range   = '';
                     
                     fov_directory                   = fov_key.fov_directory;
-                    fov_directory                   = lab.utils.format_bucket_path(fov_directory);
+                    conf = dj.config;
+                    imaging_root = conf.custom.imaging_root_data_dir;
+                    fov_directory = fullfile(imaging_root, fov_directory);
+                    
+                    %fov_directory                   = lab.utils.format_bucket_path(fov_directory);
                     fl                              = dir(sprintf('%s*.tif',fov_directory));
                     file_entries                    = repmat(file_entries,[1 numel(fl)]);
                     for iF = 1:numel(fl)

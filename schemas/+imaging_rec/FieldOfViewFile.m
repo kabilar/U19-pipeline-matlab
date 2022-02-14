@@ -9,7 +9,7 @@ file_frame_range    : blob             # [first last] frame indices in this file
 
 classdef FieldOfViewFile < dj.Part
   properties(SetAccess=protected)
-    master = imaging.FieldOfView
+    master = imaging_rec.FieldOfView
   end
   methods(Access=protected)
     function makeTuples(self, key)
