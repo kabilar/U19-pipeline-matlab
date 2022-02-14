@@ -127,3 +127,4 @@ data/DailyLogs.mat
 # svg file
 *.svg
 
+*imaging_data
