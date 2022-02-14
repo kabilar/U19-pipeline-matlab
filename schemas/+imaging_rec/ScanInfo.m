@@ -138,7 +138,7 @@ classdef ScanInfo < dj.Imported
             end
             
             %% Insert to ScanInfo
-            self.insert_scan_info(key, recInfo, scan_dirs_db.scan_directory)
+            self.insert_scan_info(key, recInfo, scan_dirs_db.recording_directory)
             
             %% FOV ROI Processing for mesoscope
             if isMesoscope
@@ -555,7 +555,7 @@ classdef ScanInfo < dj.Imported
                     % FieldOfView
                     fov_key               = key_data;
                     fov_key.fov           = ct;
-                    fov_key.fov_directory = sprintf('%s/ROI%02d_z%d/',scan_dirs_db.scan_directory,iROI,iZ);
+                    fov_key.fov_directory = sprintf('%s/ROI%02d_z%d/',scan_dirs_db.recording_directory,iROI,iZ);
                     [~,~,fov_key.relative_fov_directory] = lab.utils.get_path_from_official_dir(fov_key.fov_directory);
                     
                     if ~isempty(recInfo.ROI(iROI).name)
@@ -611,8 +611,8 @@ classdef ScanInfo < dj.Imported
             
             fovkey = key;
             fovkey.fov = 1;
-            fovkey.fov_directory          = scan_dirs_db.scan_directory;
-            fovkey.relative_fov_directory = scan_dirs_db.relative_scan_directory;
+            fovkey.fov_directory          = scan_dirs_db.recording_directory;
+            fovkey.relative_fov_directory = scan_dirs_db.recording_directory;
             fovkey.fov_depth = 0;
             fovkey.fov_center_xy = 0;
             fovkey.fov_size_xy = 0;
