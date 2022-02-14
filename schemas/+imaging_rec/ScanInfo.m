@@ -58,21 +58,28 @@ classdef ScanInfo < dj.Imported
             % runs a modified version of mesoscopeSetPreproc
             generalTimer   = tic;
             curr_dir       = pwd;
-            scan_dirs_db    = fetch1(imaging_rec.Scan * recording.Recording & key,'recording_directory');
+            scan_dirs_db    = fetch(imaging_rec.Scan * ...
+                recording.Recording * recording.RecordingBehaviorSession & key, ...
+                'recording_directory', 'subject_fullname', 'session_date', 'session_number');
+            
+            session_key = struct;
+            session_key.subject_fullname = scan_dirs_db.subject_fullname;
+            session_key.session_date = scan_dirs_db.session_date;
+            session_key.session_number = scan_dirs_db.session_number;
             
             %Get root imaging directory
             conf = dj.config;
             imaging_root = conf.custom.imaging_root_data_dir;
             
-            scan_directory = fullfile(imaging_root, scan_dirs_db);
+            scan_directory = fullfile(imaging_root, scan_dirs_db.recording_directory);
             %scan_directory = lab.utils.format_bucket_path(scan_dirs_db.scan_directory);
 
             %Check if directory exists in system
             lab.utils.assert_mounted_location(scan_directory)
-            
+                        
             % get acquisition type of session (differentiate mesoscope and 2_3 photon
             acq_type             = fetch1(proj(acquisition.Session, 'session_location->location') * ...
-                lab.Location & key, 'acquisition_type');
+                lab.Location & session_key, 'acquisition_type');
             
             cd(scan_directory)
             
