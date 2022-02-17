@@ -571,6 +571,10 @@ classdef ScanInfo < dj.Imported
                     
                     fov_key.fov_name                = thisname;
                     fov_key.fov_depth               = recInfo.ROI(iROI).Zs(iZ);
+                    if (isempty(fov_key.fov_depth) || isnan(fov_key.fov_depth) || isinf(fov_key.fov_depth))   
+                        fov_key.fov_depth = 0;
+                    end
+                    
                     fov_key.fov_center_xy           = recInfo.ROI(iROI).centerXY;
                     fov_key.fov_size_xy             = recInfo.ROI(iROI).sizeXY;
                     fov_key.fov_rotation_degrees    = recInfo.ROI(iROI).rotationDegrees;
@@ -621,7 +625,7 @@ classdef ScanInfo < dj.Imported
             fovkey = key;
             fovkey.fov = 1;
             fovkey.fov_directory          = scan_dirs_db.recording_directory;
-            fovkey.relative_fov_directory = scan_dirs_db.recording_directory;
+            %fovkey.relative_fov_directory = scan_dirs_db.recording_directory;
             fovkey.fov_depth = 0;
             fovkey.fov_center_xy = 0;
             fovkey.fov_size_xy = 0;
