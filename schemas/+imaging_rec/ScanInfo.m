@@ -316,7 +316,11 @@ classdef ScanInfo < dj.Imported
             key.frame_rate                = recInfo.frameRate;
             key.inter_fov_lag_sec         = recInfo.interROIlag_sec;
             key.frame_ts_sec              = recInfo.Timing.Frame_ts_sec;
-            %key.power_percent            = recInfo.Scope.Power_percent;
+            if isfield(recInfo.Scope, 'Power_percent')
+                key.power_percent         = recInfo.Scope.Power_percent;
+            else
+                key.power_percent         = 0;
+            end
             key.channels                  = recInfo.Scope.Channels;
             key.cfg_filename              = recInfo.Scope.cfgFilename;
             key.usr_filename              = recInfo.Scope.usrFilename;
