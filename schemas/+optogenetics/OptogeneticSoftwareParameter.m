@@ -10,18 +10,10 @@ software_parameters              : longblob         # structure of all parameter
 classdef OptogeneticSoftwareParameter < dj.Lookup
     properties (Constant = true)
     s1 = struct();
-    s2 = struct('param1', 1, 'param2', 2);
-    s3 = struct('param1', 1, 'paramx', 2);
     contents = ...
     {1, 'Empty parameters', ...,
         struct2uuid(optogenetics.OptogeneticSoftwareParameter.s1), ...
         optogenetics.OptogeneticSoftwareParameter.s1;
-     2, 'Parameters for context task', ...,
-        struct2uuid(optogenetics.OptogeneticSoftwareParameter.s2), ...
-        optogenetics.OptogeneticSoftwareParameter.s2
-     3, 'Parameters for airpuff task', ...,
-        struct2uuid(optogenetics.OptogeneticSoftwareParameter.s3), ...
-        optogenetics.OptogeneticSoftwareParameter.s3   
     }
     end
     

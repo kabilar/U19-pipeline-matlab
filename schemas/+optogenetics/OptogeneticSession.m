@@ -32,18 +32,18 @@ classdef OptogeneticSession < dj.Imported
                 status = 0;
             end
             if status
-                try
+               try
                     %Check if it is a real behavioral file
                     if isfield(log, 'session')
-                        %Insert Blocks and trails from BehFile
+                        %Insert Blocks and trails from BehFile (new and old versions)
                         self.insertOptogeneticsSessionFromFile(key, log);
                     else
                         disp(['File does not match expected Towers behavioral file: ', data_dir])
                     end
-                catch err
+               catch err
                     disp(err.message)
                     sprintf('Error in here: %s, %s, %d',err.stack(1).file, err.stack(1).name, err.stack(1).line )
-                end
+               end
             end
             
         end
@@ -58,11 +58,28 @@ classdef OptogeneticSession < dj.Imported
             % key      = session info structure (subject_fullname, session_date, session_number)
             % log      = loaded information from behavioral file
             
+            %Get trial info
+            opto_trial_structure = get_all_optogenetic_trials_data(optogenetics.OptogeneticSessionTrial,key, log);
+            
+            key.manipulation_type = 'optogenetics';
+            
             %Get optogenetic protocol from behavioral file
-            key.optogenetic_protocol_id = log.animal.stimulationProtocol.optogenetic_protocol_id;
+            if isfield(log.animal, 'stimulationProtocol') && isstruct(log.animal.stimulationProtocol)
+                key.optogenetic_protocol_id = log.animal.stimulationProtocol.optogenetic_protocol_id;
+            else
+                %For now protocol_id = 1 by default
+                key.optogenetic_protocol_id = 1;
+            end
             
             %Get software params from behavioral file (check if they exist on db)
-            curr_software_params = log.animal.softwareParams.software_parameters;
+            if isfield(log.animal, 'softwareParams') && isstruct(log.animal.softwareParams)
+                curr_software_params = log.animal.softwareParams.software_parameters;
+            else
+                %Support for old optogenetic sessions
+                %Get software params from old versions of optogenetics (check if they exist on db)
+                curr_software_params.lsrepoch = log.block(1).lsrepoch;
+                curr_software_params.P_on     = log.block(1).P_on;
+            end
             curr_hash = struct2uuid(curr_software_params);
             
             %Check if uuid already in database
@@ -82,9 +99,11 @@ classdef OptogeneticSession < dj.Imported
             
             
             insert(self, key);
+            insert(optogenetics.OptogeneticSessionTrial, opto_trial_structure);
             
         end
         
+     
     end
     
 end

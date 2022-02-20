@@ -21,7 +21,7 @@ end
 %Remove bucket "base" dir from path 
 bucket_base_dir  = path_record.bucket_path{:};
 
-if contains(bucket_dir, '/mnt/bucket/')
+if contains(bucket_dir, '/mnt/cup/')
     extra_bucket_dir = strrep(bucket_dir,bucket_base_dir, '');
 else
     extra_bucket_dir = strrep(bucket_dir,['/' path_record.global_path{:}], '');

@@ -3,6 +3,7 @@ user_id:                varchar(32)     # username, PNI netID
 ----- 
 user_nickname:          varchar(32)     # same as netID for new users, for old users, this is used in the folder name etc.
 full_name=null:         varchar(32)     # first name
+active_gui_user=1:      tinyint(1)      # indicates if a user should be present in the gui or not
 email=null:		        varchar(64)     # email address
 phone=null:             varchar(12)     # phone number
 ->lab.MobileCarrier

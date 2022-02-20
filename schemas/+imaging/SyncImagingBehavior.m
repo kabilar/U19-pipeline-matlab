@@ -228,10 +228,12 @@ classdef SyncImagingBehavior < dj.Computed
       end
       
       
-      %% Patch in behavioral trials that have no corresponding imaging info
-      for iBlock = numel(blockIndex):-1:1
-        if blockIndex(iBlock) == round(blockIndex(iBlock))
-          % If the block has imaging info, patch in trials
+      %% Patch in behavioral trials only for blocks with corresponding imaging info
+      for iBlock =  imgBlock(hasImg)
+          if isnan(blockIndex(iBlock))
+              continue
+          end
+
           sync                      = [ sync(1:bracket(blockIndex(iBlock),1) - 1)                                       ...
                                       ; mergeTrials( sync(bracket(blockIndex(iBlock),1):bracket(blockIndex(iBlock),2))  ...
                                       , numel(block(iBlock).trialType), iBlock                             ...
@@ -239,23 +241,7 @@ classdef SyncImagingBehavior < dj.Computed
                                       )                                                                    ...
                                       ; sync(bracket(blockIndex(iBlock),2) + 1:end)                                     ...
                                       ];
-        else
-          % Otherwise add an entire block of trials
-          iSync                     = floor(blockIndex(iBlock));
-          if iSync < 1
-            iSync                   = 0;
-          elseif iSync > numel(imgBlock)
-            iSync                   = bracket(end,2);
-          else
-            iSync                   = bracket(iSync,2);
-          end
-          sync                      = [ sync(1:iSync)                                           ...
-                                      ; newTrials( numel(block(iBlock).trialType), iBlock       ...
-                                      , block(iBlock).medianTrialDur, frameDeltaT    ...
-                                      )                                              ...
-                                      ; sync(iSync + 1:end)                                     ...
-                                      ];
-        end
+
       end      
       
       %% Record transition indices
@@ -280,7 +266,10 @@ classdef SyncImagingBehavior < dj.Computed
                                             , 'trial' , repmat( {struct('span', {}, 'iteration', {})}   ...
                                             , size(block) )                                             ...
                                             );
-      for iBlock = 1:numel(block)
+      for iBlock =  imgBlock(hasImg) 
+        if isnan(blockIndex(iBlock))
+          continue
+        end
         if isempty(block(iBlock).trialType)
           continue;
         end
@@ -338,7 +327,10 @@ classdef SyncImagingBehavior < dj.Computed
       %% flatten behav structure for table format
       flat_behavior.trial_span       = [];
       flat_behavior.iter_span        = {};
-      for iBlock = 1:numel(behav)
+      for iBlock = imgBlock(hasImg)
+        if isnan(blockIndex(iBlock))
+           continue
+        end
         flat_behavior.trial_span = [flat_behavior.trial_span {behav(iBlock).trial(:).span}];
         for iTrial = 1:numel(behav(iBlock).trial)
           flat_behavior.iter_span{end+1} = behav(iBlock).trial(iTrial).iteration+behav(iBlock).trial(iTrial).span(1);

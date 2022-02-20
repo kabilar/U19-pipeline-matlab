@@ -34,13 +34,13 @@ function fit_results = psychFit(deltaBins, numR, numL, choices)
     delta               = linspace(deltaBins(1)-2, deltaBins(end)+2, 50);
 
     %% Draw a line with error bars for data
-    errorX              = repmat(trialDelta(sel)', 3, 1);
-    errorY              = pci(sel,:)';
+    errorX              = repmat(trialDelta(sel), 1, 2);
+    errorY              = pci(sel,1:2);
 
     fit_results.delta_data      = trialDelta(sel)';
     fit_results.pright_data     = 100*phat(sel)';
-    fit_results.delta_error     = errorX(:)';
-    fit_results.pright_error    = 100*errorY(:)';
+    fit_results.delta_error     = errorX';
+    fit_results.pright_error    = 100*errorY';
 
     if ~isempty(psychometric)
         fit_results.delta_fit = delta';

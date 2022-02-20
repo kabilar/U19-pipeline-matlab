@@ -15,12 +15,12 @@ classdef PuffsSubjectCumulativePsych < dj.Computed
         
         function makeTuples(self, key)
 
-            deltaBins           = -15:3:15;       % controls binning of #R - #L
+            deltaBins           = -12:3:12;       % controls binning of #R - #L
             deltaBins           = deltaBins(:);
            
             session_start_time = fetch1(acquisition.Session & key, 'session_start_time');
             
-            sessions_included = fetch(acquisition.Session ...
+            sessions_included = fetch(acquisition.Session & 'level < 8' ...
                 & struct('subject_fullname', key.subject_fullname) ...
                 & puffs.PuffsSession ... 
                 & sprintf('session_start_time <= "%s"', session_start_time));

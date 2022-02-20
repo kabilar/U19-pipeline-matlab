@@ -1,9 +1,12 @@
-function [status,data] = read_behavior_file(key)
+function [status,data] = read_behavior_file(key, data_dir)
 %READ_BEHAVIORAL_FILE, read information from behavioral file
 
 data = [];
 status = 0;
-data_dir = fetch(acquisition.SessionStarted & key, 'task', 'remote_path_behavior_file');
+
+if nargin < 2
+    data_dir = fetch(acquisition.SessionStarted & key, 'task', 'remote_path_behavior_file');
+end
 
 %Load behavioral file
 try

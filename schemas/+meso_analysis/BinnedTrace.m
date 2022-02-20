@@ -22,10 +22,11 @@ classdef BinnedTrace < dj.Computed
       end
       
       %% retrieve dff data
-      data = fetch( meso_analysis.Suite2ptrace & key, 'dff_roi_uncorrected','roi_idx', 'is_cell');
+      data = fetch( meso_analysis.Suite2ptrace & key, 'dff_roi_uncorrected','roi_idx', 'skew', 'compact');
       dff = cell2mat({data.dff_roi_uncorrected}');
       global_idx = [data.roi_idx]';
-      is_cell = vertcat(data(:).is_cell);
+      %is_cell = vertcat(data(:).is_cell);
+      %is_cell  = [data.compact] <= 1.03 & [data.skew] >=1;
       
       %% use manual curation to select only good rois
 %       goodMorphoOnly = fetch1(meso_analysis.BinningParameters & key, 'good_morpho_only');
@@ -47,9 +48,8 @@ classdef BinnedTrace < dj.Computed
 %       global_idx(~isgood,:)  = [];
 
 %% for suite2p we need to define different metrics (eg classifier, skewness) 
-        dff                    = dff(is_cell(:,1)==1,:);
-        %dff(:,[1:2999, 36701:end]) = nan;
-        global_idx             = global_idx(is_cell(:,1)==1);
+        %dff                    = dff(is_cell(:,1)==1,:);
+        %global_idx             = global_idx(is_cell(:,1)==1);
       %% get behavioral trial info
  
       syncinfo = fetch(imaging.SyncImagingBehavior & key, '*');
@@ -121,7 +121,8 @@ classdef BinnedTrace < dj.Computed
 %       epochEdges       = getEpochEdges(key);
       [standardizedTime, epochEdges] = fetchn(meso_analysis.StandardizedTime & key, 'standardized_time', 'binned_time');
         standardizedTime = standardizedTime{:}(syncinfo.sync_im_frame_global ~=0);
-        epochEdges = epochEdges{:};
+       
+      epochEdges = epochEdges{:};
       epoch_by_frame     = standardizedTime(segmented_frames & good_trial_frames);
       epoch_bin_by_frame = binarySearch(epochEdges, epoch_by_frame, -1, -1);
       

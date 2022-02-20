@@ -4,30 +4,14 @@ block                       : tinyint                       # block number
 ---
 %}
 
-
-%     'CREATE TABLE `u19_behavior`.`_test_towers_block` (
-%      `subject_fullname` varchar(64) NOT NULL COMMENT "username_mouse_nickname",
-%      `session_date` date NOT NULL COMMENT "date of experiment",
-%      `session_number` int NOT NULL COMMENT "number",
-%      `block` tinyint NOT NULL COMMENT "block number",
-%      `task` varchar(32) NOT NULL COMMENT "",
-%      `level` int NOT NULL COMMENT "difficulty level",
-%      `set_id` int NOT NULL DEFAULT "1" COMMENT "parameter set id",
-%      PRIMARY KEY (`subject_fullname`,`session_date`,`session_number`,`block`),
-%      CONSTRAINT `-_P1hFgw` FOREIGN KEY (`subject_fullname`,`session_date`,`session_number`) REFERENCES `u19_behavior`.`_towers_session` (`subject_fullname`,`session_date`,`session_number`) ON UPDATE CASCADE ON DELETE RESTRICT,
-%      CONSTRAINT `g7P9uUf6` FOREIGN KEY (`task`,`level`,`set_id`) REFERENCES `u19_task`.`#task_level_parameter_set` (`task`,`level`,`set_id`) ON UPDATE CASCADE ON DELETE RESTRICT
-%      ) ENGINE = InnoDB, COMMENT ""'
-
 classdef SessionBlock < dj.Imported
     properties
-        %keySource = acquisition.Session & acquisition.SessionStarted
-        %keySource = proj(acquisition.Session, 'level->na_level') * ...
-        %         proj(acquisition.SessionStarted, 'session_location->na_location', 'remote_path_behavior_file')
+        keySource =  acquisition.Session & struct('is_bad_session', 0);
     end
     methods(Access=protected)
         function makeTuples(self, key)
             
-            [status, data] = lab.utils.read_behavior_file(key);            
+            [status, data] = lab.utils.read_behavior_file(key);
             if status
                 try
                     %Check if it is a real behavioral file
@@ -58,20 +42,31 @@ classdef SessionBlock < dj.Imported
             % key  = behavior.TowersSession key (subject_fullname, date, session_no)
             % log  = behavioral file as stored in Virmen
             
+            total_trials = 0;
             for iBlock = 1:length(log.block)
-                tuple = key;          
-                tuple.block = iBlock;
-              
-                self.insert(tuple);
+                block_tuple = key;
+                block_tuple.block = iBlock;
+                
+                %Concatenate info from all blocks before insert
+                block_struct(iBlock) = block_tuple;
                 
                 nTrials = length([log.block(iBlock).trial.choice]);
-                for itrial = 1:nTrials        
-                    tuple_trial = tuple;
-                    tuple_trial.trial_idx = itrial;
-                 
-                    insert(acquisition.SessionBlockTrial, tuple_trial)
+                for itrial = 1:nTrials
+                    trial_tuple = block_tuple;
+                    trial_tuple.trial_idx = itrial;
+                    
+                    %Concatenate info from all trials before insert
+                    total_trials = total_trials + 1;
+                    trial_struct(total_trials) = trial_tuple;
+                    
                 end
+                
             end
+            
+            %Single insert for all session
+            self.insert(block_struct);
+            insert(acquisition.SessionBlockTrial, trial_struct)
+            
         end
     end
 end

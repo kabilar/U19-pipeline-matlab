@@ -1,4 +1,4 @@
-function [header,parsedInfo] = parse_tif_header(tifFn,skipBehavSync)
+function [header,parsedInfo] = parse_tif_header_2photon(tifFn,skipBehavSync)
 
 % [header,parsedInfo] = parse_tif_header(tifFn,skipBehavSync)
 % parses tif headers saved by scan image in multi-ROI mode
@@ -28,26 +28,7 @@ if ~isempty(regexp(scopeStr,'SI.hFastZ.numFramesPerVolume = [0-9]+','match'))
 else
     parsedInfo.nDepths          = 0;
 end
-try
-    parsedInfo.Zs             = mesoscopeParams.zFactor .* eval(cell2mat(regexp(cell2mat(regexp(scopeStr,'SI.hFastZ.userZs =.\[(.\d+.)+\]','match')),'.\[(.\d+.)+\]','match')));
-catch
-    try
-        parsedInfo.Zs           = mesoscopeParams.zFactor .* eval(cell2mat(regexp(cell2mat(regexp(scopeStr,'SI.hFastZ.userZs = \d+','match')),'\d+','match')));
-    catch
-        temp                    = regexp(scopeStr,'SI.hFastZ.userZs = \[.+\]\n','match');
-        idx_zs = strfind(scopeStr,'SI.hFastZ.userZs')
-        if ~isempty(idx_zs)
-            disp('se encontro la frase SI.hFastZ.userZs')
-            scopeStr(idx_zs(1)-30:idx_zs(1)+50)
-        end
-        disp('try catch 2 Here for Zs')
-        temp
-        idx                     = regexp(temp,'\n');
-        idx
-        temp                    = temp{1}(1:idx{1}(1)-1);
-        parsedInfo.Zs           = eval(cell2mat(regexp(temp,'\[.+\]','match')));
-    end
-end
+parsedInfo.Zs = -1;
 parsedInfo.frameRate        = str2double(cell2mat(regexp(cell2mat(regexp(scopeStr,'SI.hRoiManager.scanVolumeRate = [0-9]+.[0-9]+','match')),'\d+.\d+','match')));
 parsedInfo.interROIlag_sec  = str2double(cell2mat(regexp(cell2mat(regexp(scopeStr,'SI.hScan2D.flytoTimePerScanfield = [0-9]+.[0-9]+','match')),'\d+.\d+','match')));
 
@@ -80,9 +61,9 @@ end
 %% microscope info
 if contains(scopeStr,'objectiveResolution')
     try
-    resolutionFactor                   = mesoscopeParams.xySizeFactor * str2double(cell2mat(regexp(cell2mat(regexp(scopeStr,'SI.objectiveResolution = [0-9]+.[0-9]+','match')),'\d+.\d+','match')));
+    resolutionFactor                   = imaging.utils.mesoscopeParams.xySizeFactor * str2double(cell2mat(regexp(cell2mat(regexp(scopeStr,'SI.objectiveResolution = [0-9]+.[0-9]+','match')),'\d+.\d+','match')));
     catch
-    resolutionFactor                   = mesoscopeParams.xySizeFactor * str2double(cell2mat(regexp(cell2mat(regexp(scopeStr,'SI.objectiveResolution = \d*','match')),'\d+', 'match')));    
+    resolutionFactor                   = imaging.utils.mesoscopeParams.xySizeFactor * str2double(cell2mat(regexp(cell2mat(regexp(scopeStr,'SI.objectiveResolution = \d*','match')),'\d+', 'match')));    
     end
 else
     resolutionFactor                   = 1;
@@ -90,8 +71,17 @@ end
 
 parsedInfo.Scope.Power_percent         = str2double(cell2mat(regexp(cell2mat(regexp(scopeStr,'SI.hBeams.powers = \d+','match')),'\d+','match')));
 parsedInfo.Scope.Channels              = str2double(cell2mat(regexp(cell2mat(regexp(scopeStr,'SI.hChannels.channelSave = \d+','match')),'\d+','match')));
-parsedInfo.Scope.cfgFilename           = cell2mat(regexp(cell2mat(regexp(scopeStr,'SI.hConfigurationSaver.cfgFilename = .+cfg','match')),' .[A-Z].+cfg','match'));
-parsedInfo.Scope.usrFilename           = cell2mat(regexp(cell2mat(regexp(scopeStr,'SI.hConfigurationSaver.usrFilename = .+usr','match')),' .[A-Z].+usr','match'));
+
+try 
+    parsedInfo.Scope.cfgFilename           = cell2mat(regexp(cell2mat(regexp(scopeStr,'SI.hConfigurationSaver.cfgFilename = .+cfg','match')),' .[A-Z].+cfg','match'));
+catch
+    parsedInfo.Scope.cfgFilename = '';
+end
+try
+    parsedInfo.Scope.usrFilename           = cell2mat(regexp(cell2mat(regexp(scopeStr,'SI.hConfigurationSaver.usrFilename = .+usr','match')),' .[A-Z].+usr','match'));
+catch
+    parsedInfo.Scope.usrFilename = '';    
+end
 
 if contains(scopeStr,'actuatorLag')
     try

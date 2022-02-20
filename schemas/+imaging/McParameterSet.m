@@ -18,11 +18,11 @@ classdef McParameterSet < dj.Manual
             
             %Check if uuid already in database
             recordUUID = get_uuid_params_db(self, 'mc_parameter_set_hash', uuidParams);
-            if ~isempty(recordUUID)
-                 error(['This set of parameters were already inserted:' newline, ...
-                          'mc_parameter_set_id = ' num2str(recordUUID.mc_parameter_set_id), newline, ...
-                          'mc_parameter_set_description = ' recordUUID.mc_parameter_set_description]);
-            end
+%             if ~isempty(recordUUID)
+%                  error(['This set of parameters were already inserted:' newline, ...
+%                           'mc_parameter_set_id = ' num2str(recordUUID.mc_parameter_set_id), newline, ...
+%                           'mc_parameter_set_description = ' recordUUID.mc_parameter_set_description]);
+%             end
             
             key.mc_parameter_set_hash        = uuidParams;
             if isfield(key, 'description')

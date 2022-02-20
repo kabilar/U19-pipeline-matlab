@@ -12,10 +12,8 @@ stim_pulse_width			       : DECIMAL(5,1)                    # (ms)
 classdef OptogeneticStimulationParameter < dj.Lookup
     properties
         contents = ...
-            {1, 'stim Parameters for airpuff task', ...,
+            {1, '472 nm, 10mW, 20Hz, 10msPulse', ...,
             472, 10, 20, 10;
-            2, 'stim Parameters for context task', ...,
-            565, 10, 30, 15;
             }
     end
     
