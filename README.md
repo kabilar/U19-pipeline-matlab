@@ -8,17 +8,17 @@ It specifies a number of tables and their relational structure to organizes all 
 
 in one coherent framework.
 
-# Installation
+## Installation
 + The following instructions will detail two types of installation methods.
   1. User installation to access and fetch data from the database.
   2. Developer installation to set up the pipeline for running analysis and fetching data.
 
-## Prerequisite
+### Prerequisite
 + Install DataJoint for MATLAB 
 	+ Utilize MATLAB built-in GUI i.e. Top Ribbon -> Add-Ons -> Get Add-Ons
 	+ Search, select, and install DataJoint      
 
-## User installation
+### User installation
 + The following instructions will allow a user to access and fetch data from the database.
 
   <details>
@@ -57,19 +57,46 @@ in one coherent framework.
 
 	</details>
 
-## Developer installation
+### Developer installation
 + The following instructions will allow a user to set up the pipeline for running analysis and fetching data.
 
   <details>
   <summary>Click to expand details</summary>
 
 	+ Clone this repository.
+	```
+	git clone https://github.com/<GitHub username>/U19-pipeline_matlab.git
+	```
+
 	+ Add this repository to your MATLAB Path.
-	+ Create a dj_local_conf.json
+
+	+ Create a `dj_local_conf.json` within the repository.
+	```json
+	{
+		"database_host": "datajoint00.pni.princeton.edu",
+		"database_user": "<username>",
+		"database_password": "<password>",
+		"database.port": 3306,
+		"connection.init_function": null,
+		"database.reconnect": true,
+		"enable_python_native_blobs": true,
+		"loglevel": "INFO",
+		"safemode": true,
+		"display.limit": 7,
+		"display.width": 14,
+		"display.show_tuple_count": true,
+		"stores": {},
+		"custom": {
+			"database.prefix": "u19_"
+		}
+	}
+	```
+
+	+ At the start of each MATLAB session, run `init.m`
 
   </details>
 
-# Tutorial
+## Tutorial
 Follow the steps to go through the tutorial:
 1. Get into the directory of the current tutorial `tutorials/202103/`
 2. (Skip if already connected to the DB): run `startup.m`
@@ -82,7 +109,7 @@ Follow the steps to go through the tutorial:
     * Building analysis pipeline (Recommended only if you are going to create new databases or tables for analysis) 
       * go through `session02_build_pipeline.mlx`
 
-# Accessing data files on your system
+## Accessing data files on your system
 + There are several data files (behavior, imaging & electrophysiology) that are referenced in the database
 + To access these files you should mount PNI file server volumes on your system.
 + There are three main file servers across PNI where data is stored (braininit, Bezos & u19_dj)
@@ -143,9 +170,9 @@ Follow the steps to go through the tutorial:
 
 </details>
 
-# Backend
+## Backend
 The backend is a SQL server [MariaDB].
 
-# Integration into rigs.
+## Integration into rigs.
 The rigs talk to the database directly [SSL, wired connection].
 
