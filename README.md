@@ -10,8 +10,8 @@ in one coherent framework.
 
 # Installation
 + The following instructions will detail two types of installation methods.
-      1. User installation to access and fetch data from the database.
-      2. Developer installation to set up the pipeline for running analysis and fetching data.
+  1. User installation to access and fetch data from the database.
+  2. Developer installation to set up the pipeline for running analysis and fetching data.
 
 ## Prerequisite
 + Install DataJoint for MATLAB 
